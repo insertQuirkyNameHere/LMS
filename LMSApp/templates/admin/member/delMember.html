@@ -1,0 +1,17 @@
+{%extends '../../base.html'%}
+
+{%block title%}Delete Member{%endblock%}
+
+
+{%block content%}
+    <h2>Delete Member Account</h2>
+    {%if memberAccList%}
+    {%for member in memberAccList%}
+    <div>
+        <a href="{% url 'adminAccDel' member.userObj.id %}">{{member.email}}</a>
+    </div>
+    {%endfor%}
+    {%else%}
+    <p>There are no member accounts to delete</p>
+    {%endif%}
+{%endblock%}

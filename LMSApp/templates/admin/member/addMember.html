@@ -1,0 +1,28 @@
+{%extends '../../base.html'%}
+
+{%block title%}Approve Members{%endblock%}
+
+
+{%block content%}
+    <h2>Approve Member Accounts</h2>
+    {%if memberList%}
+    {%for member in memberList%}
+    <div>
+        <ul>
+            <li>Name: {{member.name}}</li>
+            <li>Email: {{member.email}}</li>
+        </ul>
+
+        <form>
+            <input type="hidden" name="email" value="{{member.email}}">
+            <input type="hidden" name="name" value="{{member.name}}">
+            <button type="submit" name="approve">Approve</button>
+            <button type="submit" name="reject">Reject</button>
+        </form>
+    </div>
+    {%endfor%}
+
+    {%else%}
+    <p>There are no new applications at this time</p>
+    {%endif%}
+{%endblock%}

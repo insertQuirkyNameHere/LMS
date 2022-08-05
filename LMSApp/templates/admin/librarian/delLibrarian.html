@@ -1,0 +1,17 @@
+{%extends '../../base.html'%}
+
+{%block title%}Delete Lib{%endblock%}
+
+
+{%block content%}
+    <h2>Delete Librarian Account</h2>
+    {%if libAccList%}
+    {%for lib in libAccList%}
+    <div>
+        <a href="{% url 'adminAccDel' lib.userObj.id %}">{{lib.email}}</a>
+    </div>
+    {%endfor%}
+    {%else%}
+    <p>There are no Libararian accounts to delete</p>
+    {%endif%}
+{%endblock%}

@@ -1,0 +1,27 @@
+{%extends '../base.html'%}
+
+{%block title%}Confirm Del{%endblock%}
+
+
+{%block content%}
+    <h2>Confirm Deletion</h2>
+    {%if lib%}
+        <h3>Librarian Account</h3>
+        <ul>
+            <li>Name: {{lib.name}}</li>
+            <li>Email: {{lib.userObj.email}}</li>
+        </ul>
+    {% elif member %}
+        <h3>Member Account</h3>
+        <ul>
+            <li>Name: {{member.name}}</li>
+            <li>Contact: {{member.contact}}</li>
+            <li>Email: {{member.userObj.email}}</li>
+        </ul>
+    {%endif%}
+
+    <form method="post">
+        {%csrf_token%}
+        <button type="submit">Confirm Deletion</button>
+    </form>
+{%endblock%}

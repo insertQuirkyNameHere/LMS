@@ -1,0 +1,10 @@
+{%extends '../../base.html'%}
+
+{%block title%}Member Manager{%endblock%}
+
+
+{%block content%}
+    <h2>Member Management</h2>
+    <a href="{% url 'adminMemberAccAdd'%}">Approve accounts</a>
+    <a href="{% url 'adminMemberAccDel'%}">Delete Accounts</a>
+{%endblock%}

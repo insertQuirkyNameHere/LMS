@@ -1,0 +1,10 @@
+{%extends '../../base.html'%}
+
+{%block title%}Lib Manager{%endblock%}
+
+
+{%block content%}
+    <h2>Librarian Management</h2>
+    <a href="{% url 'adminLibAccAdd'%}">Add account</a>
+    <a href="{% url 'adminLibAccDel'%}">Delete Accounts</a>
+{%endblock%}
