@@ -8,7 +8,7 @@
     {%if libAccList%}
     {%for lib in libAccList%}
     <div>
-        <a href="{% url 'adminAccDel' lib.userObj.id %}">{{lib.email}}</a>
+        <a href="{% url 'adminAccDel' lib.userObj.id %}">{{lib.userObj.email}}</a>
     </div>
     {%endfor%}
     {%else%}

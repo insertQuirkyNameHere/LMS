@@ -39,6 +39,9 @@ class CustomUser(AbstractBaseUser):
 
     objects = CustomUserManager()
 
+    def __str__(self):
+        return self.email
+
 class PendingMemberAccounts(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField(max_length=100, unique=True)

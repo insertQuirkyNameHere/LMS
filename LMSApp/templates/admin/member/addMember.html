@@ -13,11 +13,12 @@
             <li>Email: {{member.email}}</li>
         </ul>
 
-        <form>
+        <form method="post">
+            {%csrf_token%}
             <input type="hidden" name="email" value="{{member.email}}">
             <input type="hidden" name="name" value="{{member.name}}">
-            <button type="submit" name="approve">Approve</button>
-            <button type="submit" name="reject">Reject</button>
+            <button type="submit" name="approve" value="approve">Approve</button>
+            <button type="submit" name="reject" value="reject">Reject</button>
         </form>
     </div>
     {%endfor%}

@@ -132,8 +132,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #Custom Stuff added here
 #Custom user model is used from accounts app
 AUTH_USER_MODEL = 'accounts.CustomUser'
+LOGOUT_REDIRECT_URL = 'home'
 
 #list of changes made to default sttings file
     #AUTH_USER_MODEL added
     #accounts added to INSTALLED_APPS
     #import os and added templates folder to DIR in TEMPLATES section
+    #logout_redirect_url

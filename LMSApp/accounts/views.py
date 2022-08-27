@@ -1,11 +1,14 @@
-from django.contrib.auth import authenticate, login
+from importlib.resources import contents
+from multiprocessing import context
+from django.contrib.auth import authenticate, login, get_user_model
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views import View
 
 from .models import PendingMemberAccounts
-from .forms import LoginForm, MemberRegisterForm
+from .forms import LoginForm, MemberRegisterForm, ResetPasswordForm
 # Create your views here.
 
 class HomePage(View):
@@ -29,11 +32,10 @@ class LoginView(View):
 
             if user is not None: 
                 login(request, user)
-                print(user)
-                if user.is_admin is True:
-                    return(redirect(reverse('adminDash')))
+                return redirect(reverse('userScramble'))
 
             else:
+                print('Invalid credos')
                 messages.error(request, 'Invalid Credentials')
                 return (redirect(reverse('login')))
 
@@ -55,6 +57,40 @@ class MemberRegisterView(View):
         
         return (redirect(reverse('home')))
 
+class PasswordReset(LoginRequiredMixin, View):
+    def get(self, request):
+        user = request.user
+        form = ResetPasswordForm({'email':user.email})
+        context = {}
+        context['form'] = form
+        return render(request, 'accounts/passwordReset.html', context)
+
+    def post(self, request):
+        passwordResetForm = ResetPasswordForm(request.POST)
+
+        if passwordResetForm.is_valid():
+            USERMODEL = get_user_model()
+            email = passwordResetForm.cleaned_data['email']
+            userExists = USERMODEL.objects.filter(email=email).exists()
+            if (not userExists):
+                messages.error(request, 'User with such an email address does not exist')
+                return redirect('home')
+
+            user = authenticate(email=email, password=passwordResetForm.cleaned_data['oldPassword'])
+            if user:
+                if passwordResetForm.cleaned_data['newPassword'] == passwordResetForm.cleaned_data['confirmPassword']:
+                    user.set_password(passwordResetForm.cleaned_data['newPassword'])
+                    user.save()
+                    print('Password Change')
+                    messages.success(request, 'Password changed successfully')
+                    return redirect(reverse('home'))
+                else:
+                    messages.warning(request, 'New passwords do not match')
+                    return redirect(reverse('passwordReset'))
+            else:
+                messages.error(request, 'Incorrect Password or email')
+                return redirect(reverse('passwordReset'))
+            
 class UserScramble(View):
     def get(self, request):
         if request.user.is_admin:

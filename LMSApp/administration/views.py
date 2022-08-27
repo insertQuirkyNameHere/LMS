@@ -1,4 +1,4 @@
-from multiprocessing import context
+from django.db import IntegrityError
 from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse
@@ -64,7 +64,6 @@ class AddLibrarian(LoginRequiredMixin, View):
                 pwd = addLibrarianForm.cleaned_data['password1']
                 name = addLibrarianForm.cleaned_data['name']
                 user = UserModel.objects.create_librarian(email=email, password=pwd)
-                print(user)
                 Librarian.objects.create(name=name, userObj=user)
                 return redirect(reverse('adminLibAccManage'))
         
@@ -97,7 +96,6 @@ class DeleteAccount(LoginRequiredMixin, View):
 
             elif(Member.objects.filter(userObj=userObj).exists()):
                 memberObj = Member.objects.get(userObj=userObj)
-
             else:
                 messages.error(request, 'Such a user does not exist')
                 return redirect(reverse('adminAccManage'))
@@ -111,20 +109,19 @@ class DeleteAccount(LoginRequiredMixin, View):
             return redirect(reverse('userScramble'))
 
     def post(self, request, id):
-        print(id)
         if request.user.is_admin:
             userObj = UserModel.objects.get(id=id)
-            if (Librarian.objects.filter(user=userObj).exists()):
-                Librarian.objects.delete(user=userObj)
+            if (Librarian.objects.filter(userObj=userObj).exists()):
+                Librarian.objects.get(userObj=userObj).delete()
                 userObj.delete()
                 messages.info(request, 'Librarian User deleted successfully')
-                return render(reverse('adminAccManage'))
+                return redirect(reverse('adminAccManage'))
 
-            elif(Member.objects.filter(user=userObj).exists()):
-                Member.objects.delete(user=userObj)
+            elif(Member.objects.filter(userObj=userObj).exists()):
+                Member.objects.get(userObj=userObj).delete()
                 userObj.delete()
                 messages.info(request, 'Member User deleted successfully')
-                return render(reverse('adminAccManage'))   
+                return redirect(reverse('adminAccManage'))   
 
             else:
                 messages.error(request, 'Such a user does not exist')
@@ -155,12 +152,18 @@ class AddMember(LoginRequiredMixin, View):
         if request.user.is_admin:
             email = request.POST['email']
             name = request.POST['name']
-            if request.POST['reject']:
-                PendingMemberAccounts.objects.delete(email=email)
+            if 'reject' in request.POST:
+                PendingMemberAccounts.objects.get(email=email).delete()
             else:
-                newUser = UserModel.objects.create_account(email=email, password='123')
-                Member.objects.create(name=name, userObj=newUser)
-                return redirect(reverse('adminMemberAccManage'))
+                if UserModel.objects.filter(email=email).exists():
+                    messages.warning(request, 'This member already has an active account')
+                    PendingMemberAccounts.objects.get(email=email).delete()
+                else:
+                    newUser = UserModel.objects.create_user(email=email, password='123')
+                    Member.objects.create(name=name, userObj=newUser)
+                    PendingMemberAccounts.objects.get(email=email).delete()
+                
+            return redirect(reverse('adminMemberAccAdd'))
                 
         else:
             messages.error('You do not have authorization to view that page')
@@ -172,9 +175,14 @@ class DeleteMember(LoginRequiredMixin, View):
             memberAccList = Member.objects.all()
             context = {}
             context['memberAccList'] = memberAccList
+            print(context)
             return render(request, 'admin/member/delMember.html', context)
             
         else:
             messages.error('You do not have authorization to view that page')
             return redirect(reverse('userScramble'))
+
+class BookManagement(View):
+    def get(self, request):
+        return render(request, 'admin/bookManager.html')
 

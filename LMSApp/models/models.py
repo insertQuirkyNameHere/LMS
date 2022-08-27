@@ -13,3 +13,10 @@ class Member(models.Model):
     name = models.CharField(max_length=50)
     contact = models.CharField(max_length=10)
     userObj = models.OneToOneField(UserModel, unique=True, on_delete=models.CASCADE)
+
+class Author(models.Model):
+    name = models.CharField(max_length=256, unique=True)
+
+class Book(models.Model):
+    title = models.CharField(max_length=520)
+    authors = models.ForeignKey
