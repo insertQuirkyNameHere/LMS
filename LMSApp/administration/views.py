@@ -1,6 +1,4 @@
-from importlib.resources import contents
-from multiprocessing import context
-from django.db import IntegrityError
+
 from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse
@@ -10,7 +8,7 @@ from django.contrib.auth import get_user_model
 from django.contrib import messages
 
 from .forms import AddLibrarianForm, AddBookForm
-from models.models import Librarian, Member, Book, Author
+from models.models import Librarian, Member, Book, Author, Genre
 from accounts.models import PendingMemberAccounts
 # Create your views here.
 
@@ -176,7 +174,6 @@ class DeleteMember(LoginRequiredMixin, View):
             memberAccList = Member.objects.all()
             context = {}
             context['memberAccList'] = memberAccList
-            print(context)
             return render(request, 'admin/member/delMember.html', context)
             
         else:
@@ -192,15 +189,17 @@ class BookView(View):
         bookList = Book.objects.all()
         context = {}
         context['bookList'] = bookList
-        return render(request, 'admin/book/bookList.html')
+        return render(request, 'admin/book/bookList.html', context)
 
 class AddBooks(View):
     def get(self, request):
         form = AddBookForm()
         authorList = Author.objects.all()
+        genreList = Genre.objects.all()
         context = {}
         context['form'] = form
         context['authorList'] = authorList
+        context['genreList'] = genreList
         return render(request, 'admin/book/addBooks.html', context)
 
     def post(self, request):
@@ -224,20 +223,48 @@ class AddBooks(View):
                         tempStr += authorList[i][j].upper()
                     j+=1
                 authorList[i] = tempStr
-            
-            bookName = form.cleaned_data['title']
-            book = Book.objects.get_or_create(name=bookName)
-            book.save()
-            for i in authorList:
-                if Author.objects.filter(name=i).exists():
-                    book.authors.add(Author.objects.get(name=i))
-                else:
-                    newAuthor = Author.objects.create(name=i)
-                    newAuthor.save()
-                    book.authors.add(newAuthor)
 
 
             genre = form.cleaned_data['genre']
-            print(genre)
+            genreList = genre.split(',')
 
+            for i in range (0, len(genreList)):
+                genreList[i] = genreList[i].strip()
+                genreList[i] = genreList[i].lower()
+                tempStr = ""
+                tempStr += genreList[i][0].upper()
+                j = 1
 
+                while(j<len(genreList[i])):
+                    tempStr += genreList[i][j]
+                    if(genreList[i][j] == ' '): 
+                        j=j+1
+                        tempStr += genreList[i][j].upper()
+                    j+=1
+                genreList[i] = tempStr
+
+            bookName = form.cleaned_data['title']
+            if Book.objects.filter(title=bookName).exists():
+                messages.info(request, 'The book you\'re trying to add already exists')
+            else:
+                book = Book.objects.create(title=bookName)
+                book.save()
+
+                for i in authorList:
+                    if Author.objects.filter(name=i).exists():
+                        book.authors.add(Author.objects.get(name=i))
+                    else:
+                        newAuthor = Author.objects.create(name=i)
+                        newAuthor.save()
+                        book.authors.add(newAuthor)
+
+                for i in genreList:
+                    if Genre.objects.filter(genre=i).exists():
+                        book.authors.add(Genre.objects.get(genre=i))
+                    else:
+                        newGenre = Genre.objects.create(genre=i)
+                        newGenre.save()
+                        book.genre.add(newGenre)
+
+            return redirect(reverse('bookManage'))
+            

@@ -23,4 +23,5 @@ class Genre(models.Model):
 class Book(models.Model):
     title = models.CharField(max_length=520)
     authors = models.ManyToManyField(Author)
-    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+    genre = models.ManyToManyField(Genre)
+
