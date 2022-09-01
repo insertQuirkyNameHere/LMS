@@ -1,3 +1,5 @@
+from importlib.resources import contents
+from multiprocessing import context
 from django.db import IntegrityError
 from django.shortcuts import redirect, render
 from django.views import View
@@ -7,9 +9,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 
-from .forms import AddLibrarianForm
-from models.models import Librarian
-from models.models import Member
+from .forms import AddLibrarianForm, AddBookForm
+from models.models import Librarian, Member, Book, Author
 from accounts.models import PendingMemberAccounts
 # Create your views here.
 
@@ -184,5 +185,59 @@ class DeleteMember(LoginRequiredMixin, View):
 
 class BookManagement(View):
     def get(self, request):
-        return render(request, 'admin/bookManager.html')
+        return render(request, 'admin/book/bookManager.html')
+
+class BookView(View):
+    def get(self, request):
+        bookList = Book.objects.all()
+        context = {}
+        context['bookList'] = bookList
+        return render(request, 'admin/book/bookList.html')
+
+class AddBooks(View):
+    def get(self, request):
+        form = AddBookForm()
+        authorList = Author.objects.all()
+        context = {}
+        context['form'] = form
+        context['authorList'] = authorList
+        return render(request, 'admin/book/addBooks.html', context)
+
+    def post(self, request):
+        form = AddBookForm(request.POST)
+
+        if form.is_valid():
+            author = form.cleaned_data['authors']
+            authorList = author.split(',')
+
+            for i in range (0, len(authorList)):
+                authorList[i] = authorList[i].strip()
+                authorList[i] = authorList[i].lower()
+                tempStr = ""
+                tempStr += authorList[i][0].upper()
+                j = 1
+
+                while(j<len(authorList[i])):
+                    tempStr += authorList[i][j]
+                    if(authorList[i][j] == ' '): 
+                        j=j+1
+                        tempStr += authorList[i][j].upper()
+                    j+=1
+                authorList[i] = tempStr
+            
+            bookName = form.cleaned_data['title']
+            book = Book.objects.get_or_create(name=bookName)
+            book.save()
+            for i in authorList:
+                if Author.objects.filter(name=i).exists():
+                    book.authors.add(Author.objects.get(name=i))
+                else:
+                    newAuthor = Author.objects.create(name=i)
+                    newAuthor.save()
+                    book.authors.add(newAuthor)
+
+
+            genre = form.cleaned_data['genre']
+            print(genre)
+
 

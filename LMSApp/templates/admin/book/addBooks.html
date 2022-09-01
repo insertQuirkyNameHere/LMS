@@ -1,0 +1,59 @@
+{%extends '../../base.html'%}
+
+{%block title%}Add Books{%endblock%}
+
+{%block content%}
+<h2>Add New Book</h2>
+
+<form method="post">
+    {%csrf_token%}
+
+    {%for field in form%}
+        {{field}}
+    {%endfor%}
+    <datalist id="authorsList">
+        {%for author in authorList%}
+        <option>{{author.name}}</option>        
+        {%endfor%}
+        <option>2</option>
+        <option>3</option>
+        <option>4</option>
+    </datalist>
+
+    <button type="submit">Submit</button>
+</form>
+<!--<script src="/static/js/multipleDatalist.js"></script>-->
+<!--        Remove in production        -->
+<div id="out"></div>
+
+<script>
+const dataList = document.querySelector('#authorsList');
+const authInp = document.querySelector('#authors');
+const optionsEle = document.querySelectorAll('#authorsList option');
+let optionsList = [];
+for (let i of optionsEle){
+    optionsList.push(i.value);
+}
+authInp.addEventListener('keyup', function(){
+    let inpText = authInp.value;
+    inpText.trim();
+    let authorList = inpText.split(',');
+    authorList = authorList.slice(0, authorList.length-1);
+    prefix = authorList.join(',');
+    updateDataList(prefix);
+})
+function updateDataList(prefix){
+    dataList.innerHTML = '';
+    for (let i of optionsList){
+        let newOption = document.createElement('option');
+        newOption.textContent = prefix + ', ' + i;
+        dataList.appendChild(newOption);
+    }
+}
+
+</script>
+<!--        End of remove in production         -->
+{%endblock%}
+
+{%block scripts%}
+{%endblock%}

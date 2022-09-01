@@ -17,6 +17,10 @@ class Member(models.Model):
 class Author(models.Model):
     name = models.CharField(max_length=256, unique=True)
 
+class Genre(models.Model):
+    genre = models.CharField(max_length=120, unique=True)
+
 class Book(models.Model):
     title = models.CharField(max_length=520)
-    authors = models.ForeignKey
+    authors = models.ManyToManyField(Author)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
