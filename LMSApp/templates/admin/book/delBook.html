@@ -1,0 +1,40 @@
+{%extends '../../base.html'%}
+
+{%block title%}Delete Book{%endblock%}
+
+{%block content%}
+    <h2>Confirm Book Deletion</h2>
+    <table>
+        <tr>
+            <th>Name</th>
+            <td>{{book.title}}</td>
+        </tr>
+
+        <tr>
+            <th>Author(s)</th>
+            <td>
+                <ul>
+                    {%for author in book.authors.all%}
+                    <li>{{author.name}}</li>
+                    {%endfor%}
+                </ul>
+            </td>
+        </tr>
+
+        <tr>
+            <th>Genre(s):</th>
+            <td>
+                <ul>
+                    {%for genre in book.genre.all%}
+                    <li>{{genre.genre}}</li>
+                    {%endfor%}
+                </ul>
+            </td>
+        </tr>
+    </table>
+
+    <form method="post">
+        {%csrf_token%}
+        <button type="submit">Confirm Deletion</button>
+    </form>
+{%endblock%}

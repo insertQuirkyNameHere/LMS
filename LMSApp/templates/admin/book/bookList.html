@@ -30,6 +30,13 @@
                     {%endfor%}
                 </ul>
             </td>
+            <td>
+                <form method="post">
+                    {%csrf_token%}
+                    <button type="submit" name="edit" value="{{book.id}}">Edit Book</button>
+                    <button type="submit" name="del" value="{{book.id}}">Delete Book</button>
+                </form>
+            </td>
         </tr>
         {%endfor%}
     </table>

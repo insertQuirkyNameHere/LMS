@@ -30,28 +30,38 @@
 <div id="out"></div>
 
 <script>
-const dataList = document.querySelector('#authorsList');
+const authDataList = document.querySelector('#authorsList');
 const authInp = document.querySelector('#authors');
-const genreInp = document.querySelector('#genre');
 const optionsEle = document.querySelectorAll('#authorsList option');
-let optionsList = [];
+
+const genreInp = document.querySelector('#genre');
+const genreDataList = document.querySelector('#genreList');
+const genreOptionsEle = document.querySelectorAll('#genreList option');
+
+let authOptionsList = [];
 for (let i of optionsEle){
-    optionsList.push(i.value);
+    authOptionsList.push(i.value);
 }
+
+let genreOptionsList = [];
+for (let i of genreOptionsEle){
+    genreOptionsList.push(i.value);
+}
+
 authInp.addEventListener('keyup', function(){
     let inpText = authInp.value;
     prefix = generatePrefix(inpText);
-    updateDataList(prefix);
+    updateDataList(prefix, authDataList, authOptionsList);
 })
 
 genreInp.addEventListener('keyup', function(){
     let inpText = genreInp.value;
     prefix = generatePrefix(inpText);
-    updateDataList(prefix);
+    updateDataList(prefix, genreDataList, genreOptionsList);
 })
 
 
-function updateDataList(prefix){
+function updateDataList(prefix, dataList, optionsList){
     dataList.innerHTML = '';
     for (let i of optionsList){
         let newOption = document.createElement('option');

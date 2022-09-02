@@ -1,4 +1,5 @@
 
+from multiprocessing import context
 from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse
@@ -191,6 +192,16 @@ class BookView(View):
         context['bookList'] = bookList
         return render(request, 'admin/book/bookList.html', context)
 
+    def post(self, request):
+        if 'del' in request.POST:
+            print(request.POST['del'])
+            return redirect(reverse('delBooks', args=(request.POST['del'])))
+
+        elif 'edit' in request.POST:
+            print(request.POST['edit'])
+            
+        return(redirect(reverse('bookList')))
+
 class AddBooks(View):
     def get(self, request):
         form = AddBookForm()
@@ -260,11 +271,30 @@ class AddBooks(View):
 
                 for i in genreList:
                     if Genre.objects.filter(genre=i).exists():
-                        book.authors.add(Genre.objects.get(genre=i))
+                        book.genre.add(Genre.objects.get(genre=i))
                     else:
                         newGenre = Genre.objects.create(genre=i)
                         newGenre.save()
                         book.genre.add(newGenre)
 
             return redirect(reverse('bookManage'))
+
+class DelBooks(View):
+    def get(self, request, id):
+        bookToDel = Book.objects.get(id=id)
+        context = {}
+        context['book'] = bookToDel
+        return render(request, 'admin/book/delBook.html', context)
+
+    def post(self, request, id):
+        bookToDel = Book.objects.get(id=id)
+        bookToDel.delete()
+        return redirect(reverse('bookList'))
+
+class EditBooks(View):
+    def get(self, request, id):
+        bookToEdit = Book.objects.get(id=id)
+        context = {}
+        context['book'] = bookToEdit
+        return render(request, 'admin/book/delBook.html', context)
             
