@@ -8,7 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 
-from .forms import AddLibrarianForm, AddBookForm
+from .forms import AddLibrarianForm, AddBookForm, EditBookForm
 from models.models import Librarian, Member, Book, Author, Genre
 from accounts.models import PendingMemberAccounts
 # Create your views here.
@@ -194,11 +194,10 @@ class BookView(View):
 
     def post(self, request):
         if 'del' in request.POST:
-            print(request.POST['del'])
             return redirect(reverse('delBooks', args=(request.POST['del'])))
 
         elif 'edit' in request.POST:
-            print(request.POST['edit'])
+            return redirect(reverse('editBooks', args=(request.POST['edit'])))
             
         return(redirect(reverse('bookList')))
 
@@ -294,7 +293,27 @@ class DelBooks(View):
 class EditBooks(View):
     def get(self, request, id):
         bookToEdit = Book.objects.get(id=id)
+        genreList = []
+        authorsList = []
+        for genre in bookToEdit.genre.all():
+            genreList.append(genre.genre)
+
+        for author in bookToEdit.authors.all():
+            authorsList.append(author.name)
+
+        form = EditBookForm({
+            'title' : bookToEdit.title,
+            'authors': ', '.join(authorsList),
+            'genre': ', '.join(genreList),
+        })
+        
+        allGenres = Genre.objects.all()
+        allAuthors = Author.objects.all()
+
         context = {}
         context['book'] = bookToEdit
+        context['form'] = form
+        context['authorList'] = allAuthors
+        context['genreList'] = allGenres
         return render(request, 'admin/book/editBook.html', context)
             

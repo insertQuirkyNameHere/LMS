@@ -1,0 +1,32 @@
+{%extends '../../base.html'%}
+
+{%block title%}Edit Book {%endblock%}
+
+{%block content%}
+    <h2>Edit Book Details</h2>
+    
+    <form method="post">
+        {%csrf_token%}
+        {%for field in form%}
+            {{field}}
+        {%endfor%}
+
+        <datalist id="authorsList">
+            {%for author in authorList%}
+            <option>{{author.name}}</option>        
+            {%endfor%}
+        </datalist>
+    
+        <datalist id="genreList">
+            {%for genre in genreList%}
+            <option>{{genre.genre}}</option>        
+            {%endfor%}
+        </datalist>
+
+        <button type="submit">Edit</button>
+    </form>
+
+    {%block scripts%}
+    <script src="/static/js/multipleDatalist.js"></script>
+    {%endblock%}
+{%endblock%}

@@ -1,3 +1,4 @@
+from turtle import title
 from django import forms
 from models.models import Book, Author
 
@@ -13,6 +14,11 @@ class AddLibrarianForm(forms.Form):
 
 
 class AddBookForm(forms.Form):
+    title = forms.CharField(widget=forms.TextInput(attrs={'placeholder':'Book Title', 'aria-label':'book title'}))
+    authors = forms.CharField(widget=forms.TextInput(attrs={'placeholder':'Author', 'aria-label':'book author', 'list':'authorsList', 'id':'authors'}))
+    genre = forms.CharField(widget=forms.TextInput(attrs={'placeholder':'Book Genre', 'aria-label':'book genre', 'list':'genreList', 'id':'genre'}))
+
+class EditBookForm(forms.Form):
     title = forms.CharField(widget=forms.TextInput(attrs={'placeholder':'Book Title', 'aria-label':'book title'}))
     authors = forms.CharField(widget=forms.TextInput(attrs={'placeholder':'Author', 'aria-label':'book author', 'list':'authorsList', 'id':'authors'}))
     genre = forms.CharField(widget=forms.TextInput(attrs={'placeholder':'Book Genre', 'aria-label':'book genre', 'list':'genreList', 'id':'genre'}))
