@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (Dashboard, AccountManagement, DeleteAccount, LibrarianAccountManagement, AddLibrarian, DeleteLibrarian,
-    MemberAccountManagement, AddMember, DeleteMember, BookManagement, BookView, AddBooks, DelBooks)
+    MemberAccountManagement, AddMember, DeleteMember, BookManagement, BookView, AddBooks, DelBooks, EditBooks)
 urlpatterns = [
     path('', Dashboard.as_view(), name='adminDash'),
     path('accounts/', AccountManagement.as_view(), name='adminAccManage'),
@@ -15,4 +15,5 @@ urlpatterns = [
     path('books/view', BookView.as_view(), name='bookList'),
     path('books/add', AddBooks.as_view(), name='addBooks'),
     path('books/del/<int:id>/', DelBooks.as_view(), name='delBooks'),
+    path('books/edit/<int:id>/', EditBooks.as_view(), name='editBooks')
 ]

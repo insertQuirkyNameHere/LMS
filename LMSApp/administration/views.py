@@ -296,5 +296,5 @@ class EditBooks(View):
         bookToEdit = Book.objects.get(id=id)
         context = {}
         context['book'] = bookToEdit
-        return render(request, 'admin/book/delBook.html', context)
+        return render(request, 'admin/book/editBook.html', context)
             
