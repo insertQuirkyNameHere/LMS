@@ -27,4 +27,12 @@ class Book(models.Model):
     genre = models.ManyToManyField(Genre)
 
 class Copy(models.Model):
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, null=False)
+    price = models.DecimalField(max_digits=8, decimal_places=2, null=False)
+    isIssued = models.BooleanField(default=False)
+    issueDate = models.DateField()
+    returnDate = models.DateField()
+    issuedTo = models.ForeignKey(Member, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return self.id

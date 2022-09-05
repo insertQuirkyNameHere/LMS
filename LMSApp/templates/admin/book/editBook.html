@@ -26,6 +26,26 @@
         <button type="submit">Edit</button>
     </form>
 
+    <h2>Copy Management</h2>
+    <h3>Add copies</h3>
+
+    <form method="post" action="addCopies">
+        {%csrf_token%}
+        {%for field in copyForm%}
+        {{field}}
+        {%endfor%}
+        <button type="submit">Add copies</button>
+    </form>
+
+    <h3>Issued copies</h3>
+        {%for copy in issuedCopies%}
+        {{copy}}
+        {%endfor%}
+
+    <h3>Unissued Copies</h3>
+        {%for copy in issuedCopies%}
+        {{copy}}
+        {%endfor%}
     {%block scripts%}
     <script src="/static/js/multipleDatalist.js"></script>
     {%endblock%}

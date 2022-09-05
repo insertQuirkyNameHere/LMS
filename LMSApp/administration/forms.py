@@ -22,3 +22,7 @@ class EditBookForm(forms.Form):
     title = forms.CharField(widget=forms.TextInput(attrs={'placeholder':'Book Title', 'aria-label':'book title'}))
     authors = forms.CharField(widget=forms.TextInput(attrs={'placeholder':'Author', 'aria-label':'book author', 'list':'authorsList', 'id':'authors'}))
     genre = forms.CharField(widget=forms.TextInput(attrs={'placeholder':'Book Genre', 'aria-label':'book genre', 'list':'genreList', 'id':'genre'}))
+
+class AddCopiesForm(forms.Form):
+    numOfCopies = forms.IntegerField(widget=forms.NumberInput(attrs={'placeholder':'Enter Number of Copies', 'aria-label':'Enter Number of Copies'}))
+    price = forms.DecimalField(widget=forms.NumberInput(attrs={'placeholder':'Copy Price', 'aria-label':'Copy Price'}))

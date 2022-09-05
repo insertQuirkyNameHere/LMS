@@ -1,5 +1,6 @@
 
 from multiprocessing import context
+from urllib import request
 from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse
@@ -8,8 +9,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 
-from .forms import AddLibrarianForm, AddBookForm, EditBookForm
-from models.models import Librarian, Member, Book, Author, Genre
+from .forms import AddLibrarianForm, AddBookForm, EditBookForm, AddCopiesForm
+from models.models import Librarian, Member, Book, Author, Genre, Copy
 from accounts.models import PendingMemberAccounts
 # Create your views here.
 
@@ -85,7 +86,7 @@ class DeleteLibrarian(LoginRequiredMixin, View):
 
 class DeleteAccount(LoginRequiredMixin, View):
     def get(self, request, id):
-        if request.user.is_admin:
+        if request.user.is_admin or request.user.is_lib:
             userObj = UserModel.objects.get(id=id)
             context = {}
             context['user'] = userObj
@@ -109,13 +110,16 @@ class DeleteAccount(LoginRequiredMixin, View):
             return redirect(reverse('userScramble'))
 
     def post(self, request, id):
-        if request.user.is_admin:
+        if request.user.is_admin or request.user.is_lib:
             userObj = UserModel.objects.get(id=id)
             if (Librarian.objects.filter(userObj=userObj).exists()):
-                Librarian.objects.get(userObj=userObj).delete()
-                userObj.delete()
-                messages.info(request, 'Librarian User deleted successfully')
-                return redirect(reverse('adminAccManage'))
+                if request.user.is_admin:
+                    Librarian.objects.get(userObj=userObj).delete()
+                    userObj.delete()
+                    messages.info(request, 'Librarian User deleted successfully')
+                    return redirect(reverse('adminAccManage'))
+                else:
+                    messages.error(request, 'Librarian Users do no have authorization to remove other librarians')
 
             elif(Member.objects.filter(userObj=userObj).exists()):
                 Member.objects.get(userObj=userObj).delete()
@@ -129,7 +133,7 @@ class DeleteAccount(LoginRequiredMixin, View):
 
 class MemberAccountManagement(LoginRequiredMixin, View):
     def get(self, request):
-        if request.user.is_admin:
+        if request.user.is_admin or request.user.is_lib:
             return render(request, 'admin/member/MemberManager.html')
 
         else:
@@ -138,7 +142,7 @@ class MemberAccountManagement(LoginRequiredMixin, View):
 
 class AddMember(LoginRequiredMixin, View):
     def get(self, request):
-        if request.user.is_admin:
+        if request.user.is_admin or request.user.is_lib:
             memberList = PendingMemberAccounts.objects.all()
             context = {}
             context['memberList'] = memberList
@@ -149,7 +153,7 @@ class AddMember(LoginRequiredMixin, View):
             return redirect(reverse('userScramble'))
 
     def post(self, request):
-        if request.user.is_admin:
+        if request.user.is_admin or request.user.is_lib:
             email = request.POST['email']
             name = request.POST['name']
             if 'reject' in request.POST:
@@ -171,7 +175,7 @@ class AddMember(LoginRequiredMixin, View):
 
 class DeleteMember(LoginRequiredMixin, View):
     def get(self, request):
-        if request.user.is_admin:
+        if request.user.is_admin or request.user.is_lib:
             memberAccList = Member.objects.all()
             context = {}
             context['memberAccList'] = memberAccList
@@ -183,137 +187,266 @@ class DeleteMember(LoginRequiredMixin, View):
 
 class BookManagement(View):
     def get(self, request):
-        return render(request, 'admin/book/bookManager.html')
+        if not request.user.is_member:
+            return render(request, 'admin/book/bookManager.html')
+        else:
+            messages.error('You do not have authorization to view that page')
+            return redirect(reverse('userScramble'))
 
 class BookView(View):
     def get(self, request):
-        bookList = Book.objects.all()
-        context = {}
-        context['bookList'] = bookList
-        return render(request, 'admin/book/bookList.html', context)
+        if not request.user.is_member:
+            bookList = Book.objects.all()
+            context = {}
+            context['bookList'] = bookList
+            return render(request, 'admin/book/bookList.html', context)
+        else:
+            messages.error('You do not have authorization to view that page')
+            return redirect(reverse('userScramble'))
 
     def post(self, request):
-        if 'del' in request.POST:
-            return redirect(reverse('delBooks', args=(request.POST['del'])))
+        if not request.user.is_member:
+            if 'del' in request.POST:
+                return redirect(reverse('delBooks', args=(request.POST['del'])))
 
-        elif 'edit' in request.POST:
-            return redirect(reverse('editBooks', args=(request.POST['edit'])))
-            
-        return(redirect(reverse('bookList')))
+            elif 'edit' in request.POST:
+                return redirect(reverse('editBooks', args=(request.POST['edit'])))
+                
+            return(redirect(reverse('bookList')))
+        else:
+            messages.error('You do not have authorization to view that page')
+            return redirect(reverse('userScramble'))
 
 class AddBooks(View):
     def get(self, request):
-        form = AddBookForm()
-        authorList = Author.objects.all()
-        genreList = Genre.objects.all()
-        context = {}
-        context['form'] = form
-        context['authorList'] = authorList
-        context['genreList'] = genreList
-        return render(request, 'admin/book/addBooks.html', context)
+        if not request.user.is_member:
+            form = AddBookForm()
+            authorList = Author.objects.all()
+            genreList = Genre.objects.all()
+            context = {}
+            context['form'] = form
+            context['authorList'] = authorList
+            context['genreList'] = genreList
+            return render(request, 'admin/book/addBooks.html', context)
+        else:
+            messages.error('You do not have authorization to view that page')
+            return redirect(reverse('userScramble'))
 
     def post(self, request):
-        form = AddBookForm(request.POST)
+        if not request.user.is_member:
+            form = AddBookForm(request.POST)
 
-        if form.is_valid():
-            author = form.cleaned_data['authors']
-            authorList = author.split(',')
+            if form.is_valid():
+                author = form.cleaned_data['authors']
+                authorList = author.split(',')
 
-            for i in range (0, len(authorList)):
-                authorList[i] = authorList[i].strip()
-                authorList[i] = authorList[i].lower()
-                tempStr = ""
-                tempStr += authorList[i][0].upper()
-                j = 1
+                for i in range (0, len(authorList)):
+                    authorList[i] = authorList[i].strip()
+                    authorList[i] = authorList[i].lower()
+                    tempStr = ""
+                    tempStr += authorList[i][0].upper()
+                    j = 1
 
-                while(j<len(authorList[i])):
-                    tempStr += authorList[i][j]
-                    if(authorList[i][j] == ' '): 
-                        j=j+1
-                        tempStr += authorList[i][j].upper()
-                    j+=1
-                authorList[i] = tempStr
+                    while(j<len(authorList[i])):
+                        tempStr += authorList[i][j]
+                        if(authorList[i][j] == ' '): 
+                            j=j+1
+                            tempStr += authorList[i][j].upper()
+                        j+=1
+                    authorList[i] = tempStr
 
 
-            genre = form.cleaned_data['genre']
-            genreList = genre.split(',')
+                genre = form.cleaned_data['genre']
+                genreList = genre.split(',')
 
-            for i in range (0, len(genreList)):
-                genreList[i] = genreList[i].strip()
-                genreList[i] = genreList[i].lower()
-                tempStr = ""
-                tempStr += genreList[i][0].upper()
-                j = 1
+                for i in range (0, len(genreList)):
+                    genreList[i] = genreList[i].strip()
+                    genreList[i] = genreList[i].lower()
+                    tempStr = ""
+                    tempStr += genreList[i][0].upper()
+                    j = 1
 
-                while(j<len(genreList[i])):
-                    tempStr += genreList[i][j]
-                    if(genreList[i][j] == ' '): 
-                        j=j+1
-                        tempStr += genreList[i][j].upper()
-                    j+=1
-                genreList[i] = tempStr
+                    while(j<len(genreList[i])):
+                        tempStr += genreList[i][j]
+                        if(genreList[i][j] == ' '): 
+                            j=j+1
+                            tempStr += genreList[i][j].upper()
+                        j+=1
+                    genreList[i] = tempStr
 
-            bookName = form.cleaned_data['title']
-            if Book.objects.filter(title=bookName).exists():
-                messages.info(request, 'The book you\'re trying to add already exists')
-            else:
-                book = Book.objects.create(title=bookName)
-                book.save()
+                bookName = form.cleaned_data['title']
+                if Book.objects.filter(title=bookName).exists():
+                    messages.info(request, 'The book you\'re trying to add already exists')
+                else:
+                    book = Book.objects.create(title=bookName)
+                    book.save()
 
-                for i in authorList:
-                    if Author.objects.filter(name=i).exists():
-                        book.authors.add(Author.objects.get(name=i))
-                    else:
-                        newAuthor = Author.objects.create(name=i)
-                        newAuthor.save()
-                        book.authors.add(newAuthor)
+                    for i in authorList:
+                        if Author.objects.filter(name=i).exists():
+                            book.authors.add(Author.objects.get(name=i))
+                        else:
+                            newAuthor = Author.objects.create(name=i)
+                            newAuthor.save()
+                            book.authors.add(newAuthor)
 
-                for i in genreList:
-                    if Genre.objects.filter(genre=i).exists():
-                        book.genre.add(Genre.objects.get(genre=i))
-                    else:
-                        newGenre = Genre.objects.create(genre=i)
-                        newGenre.save()
-                        book.genre.add(newGenre)
+                    for i in genreList:
+                        if Genre.objects.filter(genre=i).exists():
+                            book.genre.add(Genre.objects.get(genre=i))
+                        else:
+                            newGenre = Genre.objects.create(genre=i)
+                            newGenre.save()
+                            book.genre.add(newGenre)
 
-            return redirect(reverse('bookManage'))
+                return redirect(reverse('bookManage'))
+            
+        else:
+            messages.error('You do not have authorization to view that page')
+            return redirect(reverse('userScramble'))
 
 class DelBooks(View):
     def get(self, request, id):
-        bookToDel = Book.objects.get(id=id)
-        context = {}
-        context['book'] = bookToDel
-        return render(request, 'admin/book/delBook.html', context)
+        if not request.user.is_member:
+            bookToDel = Book.objects.get(id=id)
+            context = {}
+            context['book'] = bookToDel
+            return render(request, 'admin/book/delBook.html', context)
+        else:
+            messages.error('You do not have authorization to view that page')
+            return redirect(reverse('userScramble'))
 
     def post(self, request, id):
-        bookToDel = Book.objects.get(id=id)
-        bookToDel.delete()
-        return redirect(reverse('bookList'))
+        if not request.user.is_member:
+            bookToDel = Book.objects.get(id=id)
+            bookToDel.delete()
+            return redirect(reverse('bookList'))
+        else:
+            messages.error('You do not have authorization to view that page')
+            return redirect(reverse('userScramble'))
 
 class EditBooks(View):
     def get(self, request, id):
-        bookToEdit = Book.objects.get(id=id)
-        genreList = []
-        authorsList = []
-        for genre in bookToEdit.genre.all():
-            genreList.append(genre.genre)
+        if not request.user.is_member:
+            bookToEdit = Book.objects.get(id=id)
+            genreList = []
+            authorsList = []
+            for genre in bookToEdit.genre.all():
+                genreList.append(genre.genre)
 
-        for author in bookToEdit.authors.all():
-            authorsList.append(author.name)
+            for author in bookToEdit.authors.all():
+                authorsList.append(author.name)
 
-        form = EditBookForm({
-            'title' : bookToEdit.title,
-            'authors': ', '.join(authorsList),
-            'genre': ', '.join(genreList),
-        })
+            form = EditBookForm({
+                'title' : bookToEdit.title,
+                'authors': ', '.join(authorsList),
+                'genre': ', '.join(genreList),
+            })
+            
+            copyForm = AddCopiesForm()
+            allGenres = Genre.objects.all()
+            allAuthors = Author.objects.all()
+            issuedCopies = bookToEdit.copy_set.filter(isIssued=True)
+            unissuedCopies = bookToEdit.copy_set.filter(isIssued=False)
+
+            context = {}
+            context['book'] = bookToEdit
+            context['form'] = form
+            context['copyForm'] = copyForm
+            context['authorList'] = allAuthors
+            context['genreList'] = allGenres
+            context['issuedCopies'] = issuedCopies
+            context['unissuedCopies'] = unissuedCopies
+            return render(request, 'admin/book/editBook.html', context)
+        else:
+            messages.error('You do not have authorization to view that page')
+            return redirect(reverse('userScramble'))
+
+    def post(self, request, id):
+        if not request.user.is_member:
+            bookForm = EditBookForm(request.POST)
+            bookToEdit = Book.objects.get(id=id)
+            if bookForm.is_valid():
+                title = bookForm.cleaned_data['title']
+                authors = bookForm.cleaned_data['authors']
+                genre = bookForm.cleaned_data['genre']  
+
+                if authors:
+                    authorList = authors.split(',')
+                    for i in range (0, len(authorList)):
+                        authorList[i] = authorList[i].strip()
+                        authorList[i] = authorList[i].lower()
+                        tempStr = ""
+                        tempStr += authorList[i][0].upper()
+                        j = 1
+
+                        while(j<len(authorList[i])):
+                            tempStr += authorList[i][j]
+                            if(authorList[i][j] == ' '): 
+                                j=j+1
+                                tempStr += authorList[i][j].upper()
+                            j+=1
+                        authorList[i] = tempStr
+                    
+                    for i in authorList:
+                        if Author.objects.filter(name=i).exists():
+                            bookToEdit.authors.add(Author.objects.get(name=i))
+                        else:
+                            newAuthor = Author.objects.create(name=i)
+                            newAuthor.save()
+                            bookToEdit.authors.add(newAuthor)
+
+                if genre:
+                    genreList = genre.split(',')
+
+                    for i in range (0, len(genreList)):
+                        genreList[i] = genreList[i].strip()
+                        genreList[i] = genreList[i].lower()
+                        tempStr = ""
+                        tempStr += genreList[i][0].upper()
+                        j = 1
+
+                        while(j<len(genreList[i])):
+                            tempStr += genreList[i][j]
+                            if(genreList[i][j] == ' '): 
+                                j=j+1
+                                tempStr += genreList[i][j].upper()
+                            j+=1
+                        genreList[i] = tempStr
+
+                    for i in genreList:
+                        if Genre.objects.filter(genre=i).exists():
+                            bookToEdit.genre.add(Genre.objects.get(genre=i))
+                        else:
+                            newGenre = Genre.objects.create(genre=i)
+                            newGenre.save()
+                            bookToEdit.genre.add(newGenre)
+
+                if title:
+                    bookToEdit.title = title
+
+                bookToEdit.save()
+
+            else:
+                messages.error(request, 'Invalid form Data, please follow constraints')
+                return redirect(reverse('editBooks', args=(id)))     
         
-        allGenres = Genre.objects.all()
-        allAuthors = Author.objects.all()
+        else:
+            messages.error('You do not have authorization to view that page')
+            return redirect(reverse('userScramble'))
 
-        context = {}
-        context['book'] = bookToEdit
-        context['form'] = form
-        context['authorList'] = allAuthors
-        context['genreList'] = allGenres
-        return render(request, 'admin/book/editBook.html', context)
+class AddCopy(View):
+    def post(self, request, id):
+        if not request.user.is_member:
+            form = AddCopiesForm(request.POST)
+            book = Book.objects.get(id=id)
+            if form.is_valid():
+                numOfCopies = form.cleaned_data['numOfCopies']
+                price = form.cleaned_data['price']
+                for i in range(0, numOfCopies):
+                    newCopy = Copy.objects.create(book=book, price=price)
+            else:
+                messages.error(request, 'Invalid form Data, please follow constraints')
+                return redirect(reverse('editBooks', args=(id)))     
+        else:
+            messages.error('You do not have authorization to view that page')
+            return redirect(reverse('userScramble'))
             
