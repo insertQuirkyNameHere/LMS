@@ -1,0 +1,61 @@
+{%extends '../../base.html'%}
+
+{%block title%}Edit Book {%endblock%}
+
+{%block content%}
+    <h2>Edit Book Details</h2>
+    
+    <form method="post">
+        {%csrf_token%}
+        {%for field in form%}
+            {{field}}
+        {%endfor%}
+
+        <datalist id="authorsList">
+            {%for author in authorList%}
+            <option>{{author.name}}</option>        
+            {%endfor%}
+        </datalist>
+    
+        <datalist id="genreList">
+            {%for genre in genreList%}
+            <option>{{genre.genre}}</option>        
+            {%endfor%}
+        </datalist>
+
+        <button type="submit">Edit</button>
+    </form>
+
+    <h2>Copy Management</h2>
+    <h3>Add copies</h3>
+
+    <form method="post" action="addCopies">
+        {%csrf_token%}
+        {%for field in copyForm%}
+        {{field}}
+        {%endfor%}
+        <button type="submit">Add copies</button>
+    </form>
+
+    <h3>Issued copies</h3>
+    {%if issuedCopies%}
+        {%for copy in issuedCopies%}
+        {{copy}}
+        {%endfor%}
+    {%else%}
+    <p>No copies of this book have been issued yet</p>
+    {%endif%}
+
+    <h3>Unissued Copies</h3>
+    {%if unissuedCopies%}
+        {%for copy in unissuedCopies%}
+        {{copy}}
+        {%endfor%}
+    {%else%}
+    <p>All copies have been issued. There are no unissued Copies</p>
+    {%endif%}
+
+    {%block scripts%}
+    <script src="/static/js/multipleDatalist.js"></script>
+    {%endblock%}
+{%endblock%}
