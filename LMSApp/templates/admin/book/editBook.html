@@ -38,14 +38,23 @@
     </form>
 
     <h3>Issued copies</h3>
+    {%if issuedCopies%}
         {%for copy in issuedCopies%}
         {{copy}}
         {%endfor%}
+    {%else%}
+    <p>No copies of this book have been issued yet</p>
+    {%endif%}
 
     <h3>Unissued Copies</h3>
-        {%for copy in issuedCopies%}
+    {%if unissuedCopies%}
+        {%for copy in unissuedCopies%}
         {{copy}}
         {%endfor%}
+    {%else%}
+    <p>All copies have been issued. There are no unissued Copies</p>
+    {%endif%}
+
     {%block scripts%}
     <script src="/static/js/multipleDatalist.js"></script>
     {%endblock%}

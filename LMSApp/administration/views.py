@@ -370,6 +370,7 @@ class EditBooks(View):
                 genre = bookForm.cleaned_data['genre']  
 
                 if authors:
+                    bookToEdit.authors.clear()
                     authorList = authors.split(',')
                     for i in range (0, len(authorList)):
                         authorList[i] = authorList[i].strip()
@@ -395,6 +396,7 @@ class EditBooks(View):
                             bookToEdit.authors.add(newAuthor)
 
                 if genre:
+                    bookToEdit.genre.clear()
                     genreList = genre.split(',')
 
                     for i in range (0, len(genreList)):
@@ -424,6 +426,7 @@ class EditBooks(View):
                     bookToEdit.title = title
 
                 bookToEdit.save()
+                return redirect(reverse('bookList'))
 
             else:
                 messages.error(request, 'Invalid form Data, please follow constraints')
