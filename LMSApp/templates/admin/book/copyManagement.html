@@ -1,0 +1,20 @@
+{%extends '../../base.html'%}
+
+{%block title%}Edit Book {%endblock%}
+
+{%block content%}
+    <h2>Copy Management</h2>
+    
+    <ul>
+        <li>Copy: {{copy}}</li>
+        <li>Price: {{copy.price}}</li>
+        <li>Issued to: {{copy.issuedTo}}</li>
+        <li>Issue Date: {{copy.issueDate}}</li>
+        <li>Return Date: {{copy.returnDate}}</li>
+    </ul>
+
+    <h3>Manipulate options</h3>
+    <a href="{%url 'editCopies' copy.id%}">Edit Copy</a>
+    <a href="{%url 'delCopies' copy.id%}">Delete Copy</a>
+
+{%endblock%}

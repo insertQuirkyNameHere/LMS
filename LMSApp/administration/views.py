@@ -1,4 +1,5 @@
 
+from copy import copy
 from multiprocessing import context
 from urllib import request
 from django.shortcuts import redirect, render
@@ -9,7 +10,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 
-from .forms import AddLibrarianForm, AddBookForm, EditBookForm, AddCopiesForm
+from .forms import (AddLibrarianForm, AddBookForm, EditBookForm, AddCopiesForm,
+    EditCopiesForm)
 from models.models import Librarian, Member, Book, Author, Genre, Copy
 from accounts.models import PendingMemberAccounts
 # Create your views here.
@@ -193,7 +195,7 @@ class BookManagement(View):
             messages.error('You do not have authorization to view that page')
             return redirect(reverse('userScramble'))
 
-class BookView(View):
+class BookList(View):
     def get(self, request):
         if not request.user.is_member:
             bookList = Book.objects.all()
@@ -446,10 +448,119 @@ class AddCopy(View):
                 price = form.cleaned_data['price']
                 for i in range(0, numOfCopies):
                     newCopy = Copy.objects.create(book=book, price=price)
+                    newCopy.save()
+                    messages.info(request, str(numOfCopies)+' Copies Have been added')
+                    return redirect(reverse('editBooks', args=(id)))
             else:
                 messages.error(request, 'Invalid form Data, please follow constraints')
                 return redirect(reverse('editBooks', args=(id)))     
         else:
             messages.error('You do not have authorization to view that page')
             return redirect(reverse('userScramble'))
+
+class BookView(View):
+    def get(self, request, id):
+        book = Book.objects.get(id=id)
+        issuedCopies = book.copy_set.filter(isIssued=True)
+        unissuedCopies = book.copy_set.filter(isIssued=False)
+
+        copyForm = AddCopiesForm()
+        context = {}
+        context['book'] = book
+        context['issuedCopies'] = issuedCopies
+        context['unissuedCopies'] = unissuedCopies
+        context['copyForm'] = copyForm
+        return render(request, 'admin/book/bookView.html', context)
+        
+class CopyManagement(View):
+    def get(self, request, id):
+        if not request.user.is_member:
+            copy = Copy.objects.get(id=id)
+            context= {}
+            context['copy'] = copy
+            return render(request, 'admin/book/copyManagement.html', context)
             
+        else:
+            messages.error('You do not have authorization to view that page')
+            return redirect(reverse('userScramble'))
+
+class EditCopy(View):
+    def get(self, request, id):
+        if not request.user.is_member:
+            copyToEdit = Copy.objects.get(id=id)
+            form = EditCopiesForm({
+                'price': copyToEdit.price,
+                'isIssued': copyToEdit.isIssued,
+                'issuedDate': copyToEdit.issueDate,
+                'returnDate': copyToEdit.returnDate,
+            })
+            context = {}
+            context['copy'] = copyToEdit
+            context['form'] = form
+            return render(request, 'admin/book/editCopy.html', context)
+        else:
+            messages.error('You do not have authorization to view that page')
+            return redirect(reverse('userScramble'))
+    
+    def post(self, request, id):
+        if not request.user.is_member:
+            copyToEdit = Copy.objects.get(id=id)
+            form = EditCopiesForm(request.POST)
+
+            if form.is_valid():
+                if 'del' in request.POST:
+                    print('Hello')
+                price = form.cleaned_data['price']
+                isIssued = form.cleaned_data['isIssued']
+                issuedDate = form.cleaned_data['issuedDate']
+                returnDate = form.cleaned_data['returnDate']
+
+                if price:
+                    copyToEdit.price = price
+                
+                if isIssued:
+                    copyToEdit.isIssued = True
+                    if issuedDate:
+                        copyToEdit.issueDate = issuedDate
+                    else:
+                        messages.error(request, 'Copy cannot be set to issued without Issue Date and Return Date')
+                        return redirect(reverse('editCopies', args=(id)))
+                
+                    if returnDate:
+                        copyToEdit.returnDate = returnDate
+                    else:
+                        messages.error(request, 'Copy cannot be set to issued without Issue Date and Return Date')
+                        return redirect(reverse('editCopies', args=(id)))
+
+            else:
+                messages.error(request, 'Invalid form Data, please follow constraints')
+                return redirect(reverse('editCopies', args=(id)))
+
+            messages.info(request, 'Copy has been edited')
+            return redirect(reverse('editBooks', args=(copyToEdit.book.id)))  
+
+        else:
+            messages.error('You do not have authorization to view that page')
+            return redirect(reverse('userScramble'))    
+
+class DeleteCopy(View) :
+    def get(self, request, id):
+        if not request.user.is_member:
+            copyToDelete = Copy.objects.get(id=id)
+            context = {}
+            context['copy'] = copyToDelete
+            return render(request, 'admin/books/delCopy.html', context)
+        else:
+            messages.error('You do not have authorization to view that page')
+            return redirect(reverse('userScramble'))
+
+    def post(self, request, id):
+        if not request.user.is_member:
+            copyToDelete = Copy.objects.get(id=id)
+            bookId = Copy.book.id
+            copyToDelete.delete()
+            messages.info(request, 'Copy was deleted')
+            return redirect(reverse('editBooks', args=(bookId)))
+        else:
+            messages.error('You do not have authorization to view that page')
+            return redirect(reverse('userScramble'))

@@ -1,5 +1,6 @@
 from pyexpat import model
 from tkinter import CASCADE
+from typing import Tuple
 from django.db import models
 from django.contrib.auth import get_user_model
 
@@ -30,9 +31,9 @@ class Copy(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, null=False)
     price = models.DecimalField(max_digits=8, decimal_places=2, null=False)
     isIssued = models.BooleanField(default=False)
-    issueDate = models.DateField()
-    returnDate = models.DateField()
-    issuedTo = models.ForeignKey(Member, on_delete=models.PROTECT)
+    issueDate = models.DateField(null=True)
+    returnDate = models.DateField(null=True)
+    issuedTo = models.ForeignKey(Member, on_delete=models.PROTECT, null=True)
 
     def __str__(self):
-        return self.id
+        return self.book.title + " "+ str(self.id)

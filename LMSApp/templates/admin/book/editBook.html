@@ -26,34 +26,15 @@
         <button type="submit">Edit</button>
     </form>
 
-    <h2>Copy Management</h2>
-    <h3>Add copies</h3>
+    <h2>Add Copies</h2>
 
-    <form method="post" action="addCopies">
+    <form method="post" action="{%url 'addCopies' book.id%}">
         {%csrf_token%}
         {%for field in copyForm%}
         {{field}}
         {%endfor%}
         <button type="submit">Add copies</button>
     </form>
-
-    <h3>Issued copies</h3>
-    {%if issuedCopies%}
-        {%for copy in issuedCopies%}
-        {{copy}}
-        {%endfor%}
-    {%else%}
-    <p>No copies of this book have been issued yet</p>
-    {%endif%}
-
-    <h3>Unissued Copies</h3>
-    {%if unissuedCopies%}
-        {%for copy in unissuedCopies%}
-        {{copy}}
-        {%endfor%}
-    {%else%}
-    <p>All copies have been issued. There are no unissued Copies</p>
-    {%endif%}
 
     {%block scripts%}
     <script src="/static/js/multipleDatalist.js"></script>

@@ -26,3 +26,9 @@ class EditBookForm(forms.Form):
 class AddCopiesForm(forms.Form):
     numOfCopies = forms.IntegerField(widget=forms.NumberInput(attrs={'placeholder':'Enter Number of Copies', 'aria-label':'Enter Number of Copies'}))
     price = forms.DecimalField(widget=forms.NumberInput(attrs={'placeholder':'Copy Price', 'aria-label':'Copy Price'}))
+
+class EditCopiesForm(forms.Form):
+    price = forms.DecimalField(widget=forms.NumberInput(attrs={'placeholder':'Copy Price', 'aria-label':'Copy Price'}))
+    isIssued = forms.BooleanField(label='Copy Issued?')
+    issuedDate = forms.DateField(label='Issue Date')
+    returnDate = forms.DateField(label='Return Date')

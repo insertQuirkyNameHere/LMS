@@ -1,0 +1,12 @@
+{%extends '../../base.html'%}
+
+{%block title%}Delete Copy{%endblock%}
+
+{%block content%}
+<h2>Delete Copy</h2>
+<h3>{{copy}}</h3>
+<h3>Price: {{copy.price}}</h3>
+<form method="post">
+    <button type="submit">Delete</button>
+</form>
+{%endblock%}
