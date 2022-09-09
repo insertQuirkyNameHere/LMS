@@ -15,7 +15,7 @@
         {%for book in bookList%}
         <tr>
             <td>{{forloop.counter}}</td>
-            <td>{{book.title}}</td>
+            <td><a href="{%url 'viewBook' book.id%}">{{book.title}}</a></td>
             <td>
                 <ul>
                     {%for author in book.authors.all%}

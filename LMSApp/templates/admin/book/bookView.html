@@ -1,0 +1,86 @@
+{%extends '../../base.html'%}
+
+{%block title%}Book View{%endblock%}
+
+{% block content %}
+<h2>Book Details</h2>
+<ul>
+    <li>Title: {{book.title}}</li>
+    <li>Authors
+        <ul>
+            {%for author in book.authors.all%}
+            <li>{{author.name}}</li>
+            {%endfor%}
+        </ul>
+    </li>
+
+    <li>
+        Genre
+        <ul>
+            {%for genre in book.genre.all%}
+            <li>{{genre.genre}}</li>
+            {%endfor%}
+        </ul>
+    </li>
+</ul>
+
+<h3>Unissued copies</h3>
+    {%if unissuedCopies%}
+        <table>
+            <tr>
+                <th>Sl. No.</th>
+                <th>Copy</th>
+                <th>Action</th>
+            </tr>
+            {%for copy in unissuedCopies%}
+            <tr>
+                <td>{{forloop.counter}}</td>
+                <td>
+                    <a href="{%url 'viewCopy' copy.id%}">{{copy}}</a>
+                </td>
+                <td>
+                    <a href="{%url 'editCopies' copy.id%}">Edit</a>
+                    <a href="{%url 'delCopies' copy.id%}">Delete</a>
+                </td>
+            </tr>
+            {%endfor%}
+        </table>
+    {%else%}
+    <p>All copies have been issued. There are no unissued Copies</p>
+    {%endif%}
+    
+    <h3>Issued copies</h3>
+    {%if issuedCopies%}
+        <table>
+            <tr>
+                <th>Sl. No.</th>
+                <th>Copy</th>
+                <th>Action</th>
+            </tr>
+            {%for copy in issuedCopies%}
+            <tr>
+                <td>{{forloop.counter}}</td>
+                <td>
+                    <a href="{%url 'viewCopy' copy.id%}">{{copy}}</a>
+                </td>
+                <td>
+                    <a href="{%url 'editCopies' copy.id%}">Edit</a>
+                    <a href="{%url 'delCopies' copy.id%}">Delete</a>
+                </td>
+            </tr>
+            {%endfor%}
+        </table>
+    {%else%}
+    <p>No copies of this book have been issued yet</p>
+    {%endif%}
+
+    <h2>Add Copies</h2>
+
+    <form method="post" action="{%url 'addCopies' book.id%}">
+        {%csrf_token%}
+        {%for field in copyForm%}
+        {{field}}
+        {%endfor%}
+        <button type="submit">Add copies</button>
+    </form>
+{%endblock%}

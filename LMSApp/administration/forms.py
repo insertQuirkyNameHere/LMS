@@ -1,6 +1,9 @@
-from turtle import title
+from datetime import date
 from django import forms
 from models.models import Book, Author
+
+class DateInput(forms.DateInput):
+    input_type =  date
 
 class AddLibrarianForm(forms.Form):
     name = forms.CharField(max_length=50, 
@@ -26,3 +29,9 @@ class EditBookForm(forms.Form):
 class AddCopiesForm(forms.Form):
     numOfCopies = forms.IntegerField(widget=forms.NumberInput(attrs={'placeholder':'Enter Number of Copies', 'aria-label':'Enter Number of Copies'}))
     price = forms.DecimalField(widget=forms.NumberInput(attrs={'placeholder':'Copy Price', 'aria-label':'Copy Price'}))
+
+class EditCopiesForm(forms.Form):
+    price = forms.DecimalField(widget=forms.NumberInput(attrs={'placeholder':'Copy Price', 'aria-label':'Copy Price'}))
+    isIssued = forms.BooleanField(label='Copy Issued?')
+    issuedDate = forms.DateField(widget=DateInput(attrs={'type':'date', 'disabled':'true'}), label='Issue Date', required=False)
+    returnDate = forms.DateField(widget=DateInput(attrs={'type':'date', 'disabled':'true'}), label='Return Date', required=False)

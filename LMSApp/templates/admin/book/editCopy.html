@@ -1,0 +1,44 @@
+{%extends '../../base.html'%}
+
+{%block title%}Edit Copy{%endblock%}
+
+{%block content%}
+<h2>Copy management- {{copy}}</h2>
+
+<h3>Edit Copy</h3>
+
+<form method="post">
+    {%csrf_token%}
+    {%for field in form%}
+        <label>
+            {{field.label}}
+            {{field}}
+        </label>
+    {%endfor%}
+    <button type="submit">Edit</button>
+</form>
+
+<h3>Delete Copy</h3>
+<a href="{%url 'delCopies' copy.id%}">Delete Copy</a>
+{%endblock%}
+{%block scripts%}
+<script>
+    const checkEle = document.querySelector('#id_isIssued');
+    const issueDateEle = document.querySelector('#id_issuedDate');
+    const returnDateEle = document.querySelector('#id_returnDate');
+    checkEle.addEventListener('click', function(){
+        if (checkEle.checked){
+            issueDateEle.removeAttribute('disabled');
+            returnDateEle.removeAttribute('disabled');
+            issueDateEle.value = new Date(0);
+            returnDateEle.value = new Date(0);
+        }
+        else{
+            
+            issueDateEle.setAttribute('disabled', true);
+            returnDateEle.setAttribute('disabled', true);
+        }
+    });
+</script>
+{%endblock%}
+
