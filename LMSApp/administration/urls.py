@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (Dashboard, AccountManagement, DeleteAccount, LibrarianAccountManagement, AddLibrarian, DeleteLibrarian,
     MemberAccountManagement, AddMember, DeleteMember, BookManagement, BookList, BookView, AddBooks, DelBooks, EditBooks, AddCopy, EditCopy,
-    CopyManagement)
+    CopyManagement, DeleteCopy)
 urlpatterns = [
     path('', Dashboard.as_view(), name='adminDash'),
     path('accounts/', AccountManagement.as_view(), name='adminAccManage'),
@@ -21,6 +21,6 @@ urlpatterns = [
     path('books/copy/<int:id>/ ', CopyManagement.as_view(), name='viewCopy'),
     path('books/copy/add/<int:id>/ ', AddCopy.as_view(), name='addCopies'),
     path('books/copy/edit/<int:id>/ ', EditCopy.as_view(), name='editCopies'),
-    path('books/copy/del/<int:id>/ ', EditCopy.as_view(), name='delCopies'),
+    path('books/copy/del/<int:id>/ ', DeleteCopy.as_view(), name='delCopies'),
     
 ]

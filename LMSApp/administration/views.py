@@ -549,7 +549,7 @@ class DeleteCopy(View) :
             copyToDelete = Copy.objects.get(id=id)
             context = {}
             context['copy'] = copyToDelete
-            return render(request, 'admin/books/delCopy.html', context)
+            return render(request, 'admin/book/delCopy.html', context)
         else:
             messages.error('You do not have authorization to view that page')
             return redirect(reverse('userScramble'))
@@ -557,10 +557,10 @@ class DeleteCopy(View) :
     def post(self, request, id):
         if not request.user.is_member:
             copyToDelete = Copy.objects.get(id=id)
-            bookId = Copy.book.id
+            bookId = Copy.book.__get__(copyToDelete).id
             copyToDelete.delete()
             messages.info(request, 'Copy was deleted')
-            return redirect(reverse('editBooks', args=(bookId)))
+            return redirect(reverse('viewBook', args=[bookId]))
         else:
             messages.error('You do not have authorization to view that page')
             return redirect(reverse('userScramble'))
