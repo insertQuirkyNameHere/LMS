@@ -32,6 +32,7 @@ class AddCopiesForm(forms.Form):
 
 class EditCopiesForm(forms.Form):
     price = forms.DecimalField(widget=forms.NumberInput(attrs={'placeholder':'Copy Price', 'aria-label':'Copy Price'}))
-    isIssued = forms.BooleanField(label='Copy Issued?')
+    isIssued = forms.BooleanField(label='Copy Issued?', required=False)
     issuedDate = forms.DateField(widget=DateInput(attrs={'type':'date', 'disabled':'true'}), label='Issue Date', required=False)
     returnDate = forms.DateField(widget=DateInput(attrs={'type':'date', 'disabled':'true'}), label='Return Date', required=False)
+    issuedTo = forms.ChoiceField

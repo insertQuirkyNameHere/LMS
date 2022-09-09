@@ -37,3 +37,11 @@ class Copy(models.Model):
 
     def __str__(self):
         return self.book.title + " "+ str(self.id)
+
+class BorrowHistory(models.Model):
+    copy = models.ForeignKey(Copy, on_delete=models.SET('Delted Copy'))
+    borrower = models.ForeignKey(Member, on_delete=models.SET('Deleted User'))
+    borrowDate = models.DateField()
+    dueDate = models.DateField()
+    returnDate = models.DateField()
+
