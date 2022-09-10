@@ -1,0 +1,17 @@
+{%extends '../base.html'%}
+
+{%block title%}Return Book{%endblock%}
+
+{%block content%}
+    <h2>Return Book</h2>
+    <ul>
+        <li>Book: {{copy}}</li>
+        <li>Price: {{copy.price}}</li>
+        <li>Issue Date: {{copy.issueDate}}</li>
+        <li>Due Date: {{copy.returnDate}}</li>
+    </ul>
+
+    <form action="post">
+        <button type="submit">Return</button>
+    </form>
+{%endblock%}

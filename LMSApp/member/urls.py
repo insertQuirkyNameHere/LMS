@@ -6,4 +6,5 @@ urlpatterns=[
     path('books/', BookList.as_view(), name='memBookList'),
     path('books/<int:id>/', BookView.as_view(), name='memBookView'),
     path('copy/<int:id>/', CopyView.as_view(), name='memCopyView'),
+    path('issuedBooks/', IssuedList.as_view(), name='memIssueList'),
 ]

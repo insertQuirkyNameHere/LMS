@@ -1,10 +1,11 @@
 import datetime as DT
+from multiprocessing import context
 
 from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.views import View
 
-from models.models import Book, Copy, Member
+from models.models import Book, Copy, Member, VerifyReturns
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -75,7 +76,47 @@ class CopyView(LoginRequiredMixin, View):
     
 
 class IssuedList(LoginRequiredMixin, View):
-    pass
+    def get(self, request):
+        user = request.user
+        member = Member.objects.get(userObj=user)
+        copyList = Copy.objects.filter(issuedTo=member)
+        context = {}
+        context['copyList'] = copyList
+        return render(request, 'member/issuedList.html', context)
 
-class IssuedBookView(View):
-    pass
+class ReturnCopy(LoginRequiredMixin, View):
+    def get(self, request, id):
+        user = request.user
+        member = Member.objects.get(userObj=user)
+        copy = Copy.objects.get(id=id)
+        
+        if not copy.issuedTo == member:
+            messages.error(request, 'Do not attempt to change the URL to manipulate Returns. Your activity will be reported to the librarian')
+            return redirect(reverse('memberDash'))
+
+        context={}
+        context['copy'] = copy
+        return render(request, 'member/returnBook.html', context)
+
+    def post(self, request, id):
+        user = request.user
+        member = Member.objects.get(userObj=user)
+        copy = Copy.objects.get(id=id)
+        
+        if not copy.issuedTo == member:
+            messages.error(request, 'Do not attempt to change the URL to manipulate Returns. Your activity will be reported to the librarian')
+            return redirect(reverse('memberDash'))
+
+        newReturn = VerifyReturns.objects.create(copy=copy, returnDate=DT.date.today())
+        newReturn.save()
+        messages.info('Your return has been noted. Awaiting librarian approval')
+        return redirect(reverse('memberDash'))
+
+class PendingApprovals(LoginRequiredMixin, View):
+    def get(self, request):
+        user = request.user
+        member = Member.objects.get(userObj=user)
+        pendingApprovals = VerifyReturns.objects.filter(member=member)
+        context = {}
+        context['pendingApprovals'] = pendingApprovals
+        return render(request, 'member/returnApprovals.html', context)

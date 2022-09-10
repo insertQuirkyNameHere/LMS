@@ -1,0 +1,14 @@
+{%extends '../base.html'%}
+
+{%block title%}Return Approval{%endblock%}
+
+{%block content%}
+    {%if pendingApproval%}
+        {%for approval in pendingApproval%}
+            <a href="{%url 'memCopyView' approval.copy.id%}">{{approval.copy}}</a>
+            <span>Returned Date: {{approval.returnDate}}</span>
+        {%endfor%}
+    {%else%}
+        <p>All your returns have been approved. There are no outstanding return approval requests</p>
+    {%endif%}
+{%endblock%}
