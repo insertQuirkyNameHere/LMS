@@ -1,0 +1,17 @@
+{%extends '../base.html'%}
+
+{%block title%}Issued Books{%endblock%}
+
+{%block content%}
+    <h2>My books</h2>
+    {%if copyList%}
+        {%for copy in copyList%}
+            <div>
+                <a href="{%url 'memCopyView' copy.id%}">{{copy}}</a>
+                <a href="">{{return}}</a>
+            </div>
+        {%endfor%}
+    {%else%}
+        <p>You have not issued any books yet</p>
+    {%endif%}
+{%endblock%}

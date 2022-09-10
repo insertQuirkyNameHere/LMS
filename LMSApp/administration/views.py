@@ -1,7 +1,3 @@
-
-from copy import copy
-from multiprocessing import context
-from urllib import request
 from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse
@@ -17,6 +13,7 @@ from accounts.models import PendingMemberAccounts
 # Create your views here.
 
 UserModel = get_user_model()
+navLinks = []
 
 class Dashboard(LoginRequiredMixin, View):
     def get(self, request):
@@ -209,10 +206,10 @@ class BookList(View):
     def post(self, request):
         if not request.user.is_member:
             if 'del' in request.POST:
-                return redirect(reverse('delBooks', args=(request.POST['del'])))
+                return redirect(reverse('delBooks', args=[request.POST['del']]))
 
             elif 'edit' in request.POST:
-                return redirect(reverse('editBooks', args=(request.POST['edit'])))
+                return redirect(reverse('editBooks', args=[request.POST['edit']]))
                 
             return(redirect(reverse('bookList')))
         else:
@@ -432,7 +429,7 @@ class EditBooks(View):
 
             else:
                 messages.error(request, 'Invalid form Data, please follow constraints')
-                return redirect(reverse('editBooks', args=(id)))     
+                return redirect(reverse('editBooks', args=[id]))     
         
         else:
             messages.error('You do not have authorization to view that page')
@@ -450,10 +447,10 @@ class AddCopy(View):
                     newCopy = Copy.objects.create(book=book, price=price)
                     newCopy.save()
                     messages.info(request, str(numOfCopies)+' Copies Have been added')
-                    return redirect(reverse('editBooks', args=(id)))
+                    return redirect(reverse('viewBook', args=[id]))
             else:
                 messages.error(request, 'Invalid form Data, please follow constraints')
-                return redirect(reverse('editBooks', args=(id)))     
+                return redirect(reverse('viewBook', args=[id]))     
         else:
             messages.error('You do not have authorization to view that page')
             return redirect(reverse('userScramble'))
@@ -493,6 +490,7 @@ class EditCopy(View):
                 'isIssued': copyToEdit.isIssued,
                 'issuedDate': copyToEdit.issueDate,
                 'returnDate': copyToEdit.returnDate,
+                'issuedTo': copyToEdit.issuedTo,
             })
             context = {}
             context['copy'] = copyToEdit
@@ -508,40 +506,47 @@ class EditCopy(View):
             form = EditCopiesForm(request.POST)
 
             if form.is_valid():
-                if 'del' in request.POST:
-                    print('Hello')
                 price = form.cleaned_data['price']
                 isIssued = form.cleaned_data['isIssued']
                 issuedDate = form.cleaned_data['issuedDate']
                 returnDate = form.cleaned_data['returnDate']
+                issuedTo = form.cleaned_data['issuedTo']
 
                 if price:
                     copyToEdit.price = price
                 
                 if isIssued:
-                    copyToEdit.isIssued = True
+
                     if issuedDate:
                         copyToEdit.issueDate = issuedDate
                     else:
                         messages.error(request, 'Copy cannot be set to issued without Issue Date and Return Date')
-                        return redirect(reverse('editCopies', args=(id)))
+                        return redirect(reverse('viewCopy', args=[id]))
                 
                     if returnDate:
                         copyToEdit.returnDate = returnDate
                     else:
                         messages.error(request, 'Copy cannot be set to issued without Issue Date and Return Date')
-                        return redirect(reverse('editCopies', args=(id)))
+                        return redirect(reverse('viewCopy', args=[id]))
+
+                    if issuedTo:
+                        copyToEdit.issuedTo = issuedTo
+                    else:
+                        messages.error(request, 'Copy cannot be set to issued without specifying a borrower')
+                        return redirect(reverse('viewCopy', args=[id]))
+                
+                copyToEdit.save()
 
             else:
                 messages.error(request, 'Invalid form Data, please follow constraints')
-                return redirect(reverse('editCopies', args=(id)))
+                return redirect(reverse('editCopies', args=[id]))
 
             messages.info(request, 'Copy has been edited')
-            return redirect(reverse('editBooks', args=(copyToEdit.book.id)))  
+            return redirect(reverse('viewBook', args=[copyToEdit.book.id]))  
 
         else:
             messages.error('You do not have authorization to view that page')
-            return redirect(reverse('userScramble'))    
+            return redirect(reverse('userScramble'))
 
 class DeleteCopy(View) :
     def get(self, request, id):
