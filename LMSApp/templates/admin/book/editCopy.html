@@ -23,17 +23,21 @@
     const checkEle = document.querySelector('#id_isIssued');
     const issueDateEle = document.querySelector('#id_issuedDate');
     const returnDateEle = document.querySelector('#id_returnDate');
+    const issuedToEle = document.querySelector('#id_issuedTo');
     checkEle.addEventListener('click', function(){
         if (checkEle.checked){
             issueDateEle.removeAttribute('disabled');
             returnDateEle.removeAttribute('disabled');
+            issuedToEle.removeAttribute('disabled');
             issueDateEle.value = new Date(0);
             returnDateEle.value = new Date(0);
+            issuedToEle.value = null;
         }
         else{
             
             issueDateEle.setAttribute('disabled', true);
             returnDateEle.setAttribute('disabled', true);
+            issuedToEle.setAttribute('disabled', true);
         }
     });
 </script>

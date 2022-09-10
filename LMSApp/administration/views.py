@@ -1,7 +1,3 @@
-
-from copy import copy
-from multiprocessing import context
-from urllib import request
 from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse
@@ -17,6 +13,7 @@ from accounts.models import PendingMemberAccounts
 # Create your views here.
 
 UserModel = get_user_model()
+navLinks = []
 
 class Dashboard(LoginRequiredMixin, View):
     def get(self, request):
@@ -493,6 +490,7 @@ class EditCopy(View):
                 'isIssued': copyToEdit.isIssued,
                 'issuedDate': copyToEdit.issueDate,
                 'returnDate': copyToEdit.returnDate,
+                'issuedTo': copyToEdit.issuedTo,
             })
             context = {}
             context['copy'] = copyToEdit
@@ -512,6 +510,7 @@ class EditCopy(View):
                 isIssued = form.cleaned_data['isIssued']
                 issuedDate = form.cleaned_data['issuedDate']
                 returnDate = form.cleaned_data['returnDate']
+                issuedTo = form.cleaned_data['issuedTo']
 
                 if price:
                     copyToEdit.price = price
@@ -522,19 +521,19 @@ class EditCopy(View):
                         copyToEdit.issueDate = issuedDate
                     else:
                         messages.error(request, 'Copy cannot be set to issued without Issue Date and Return Date')
-                        return redirect(reverse('editCopies', args=[id]))
+                        return redirect(reverse('viewCopy', args=[id]))
                 
                     if returnDate:
                         copyToEdit.returnDate = returnDate
                     else:
                         messages.error(request, 'Copy cannot be set to issued without Issue Date and Return Date')
-                        return redirect(reverse('editCopies', args=[id]))
+                        return redirect(reverse('viewCopy', args=[id]))
 
                     if issuedTo:
-                        pass
+                        copyToEdit.issuedTo = issuedTo
                     else:
                         messages.error(request, 'Copy cannot be set to issued without specifying a borrower')
-                        return redirect(reverse('editCopies', args=[id]))
+                        return redirect(reverse('viewCopy', args=[id]))
                 
                 copyToEdit.save()
 

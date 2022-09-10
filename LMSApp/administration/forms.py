@@ -1,6 +1,7 @@
 from datetime import date
+from faulthandler import disable
 from django import forms
-from models.models import Book, Author
+from models.models import Member
 
 class DateInput(forms.DateInput):
     input_type =  date
@@ -31,8 +32,12 @@ class AddCopiesForm(forms.Form):
     price = forms.DecimalField(widget=forms.NumberInput(attrs={'placeholder':'Copy Price', 'aria-label':'Copy Price'}))
 
 class EditCopiesForm(forms.Form):
+    AllmemberObj = Member.objects.all()
+    issuedToChoices = [(None, None)]
+    for member in AllmemberObj:
+        issuedToChoices.append((member.name, member.name))
     price = forms.DecimalField(widget=forms.NumberInput(attrs={'placeholder':'Copy Price', 'aria-label':'Copy Price'}))
     isIssued = forms.BooleanField(label='Copy Issued?', required=False)
     issuedDate = forms.DateField(widget=DateInput(attrs={'type':'date', 'disabled':'true'}), label='Issue Date', required=False)
     returnDate = forms.DateField(widget=DateInput(attrs={'type':'date', 'disabled':'true'}), label='Return Date', required=False)
-    issuedTo = forms.ChoiceField
+    issuedTo = forms.ChoiceField(choices=issuedToChoices, required=False, widget=forms.Select(attrs={'disabled':'true'}))
