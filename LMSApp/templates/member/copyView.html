@@ -1,0 +1,23 @@
+{%extends '../base.html'%}
+
+{%block title%}Copy View{%endblock%}
+
+{%block content%}
+    <h2>Copy Details</h2>
+    <ul>
+        <li>Book: {{book.title}}</li>
+        <li>Copy: {{copy}}</li>
+        <li>Issue Date: {{copy.issueDate}}</li>
+        <li>Return Date: {{copy.returnDate}}</li>
+    </ul>
+
+    <h2>Issue Copy</h2>
+    {%if copy.isIssued%}
+        <p>You cannot Issue this copy. It has already been issued.</p>
+    {%else%}
+        <form method="post">
+            {%csrf_token%}
+            <button type="submit">Issue</button>
+        </form>
+    {%endif%}
+{%endblock%}

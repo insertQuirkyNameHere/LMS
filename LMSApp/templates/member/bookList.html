@@ -1,0 +1,10 @@
+{%extends '../base.html'%}
+
+{%block title%}Books List{%endblock%}
+
+{%block content%}
+    <h2>Available Books</h2>
+    {%for book in bookList%}
+    <a href="{%url 'memBookView' book.id%}">{{book.title}}</a>
+    {%endfor%}
+{%endblock%}

@@ -1,0 +1,48 @@
+{%extends '../base.html'%}
+
+{%block title%}Book View{%endblock%}
+
+{%block content%}
+
+    <h2>Book Details</h2>
+    <ul>
+        <li>Title: {{book.title}}</li>
+
+        <li>
+            Authors:
+            <ul>
+                {%for author in book.authors.all%}
+                <li>{{author.name}}</li>
+                {%endfor%}
+            </ul>
+        </li>
+
+        <li>
+            Genres:
+            <ul>
+                {%for genre in book.genre.all%}
+                <li>{{genre.genre}}</li>
+                {%endfor%}
+            </ul>
+        </li>
+    </ul>
+
+    <h2>Unissued Copies</h2>
+    {%if unissuedCopies%}
+        {%for copy in unissuedCopies%}
+            <a href="{%url 'memCopyView' copy.id%}">{{copy}}</a>
+        {%endfor%}
+    {%else%}
+    <p>All copies have been issued. There are no unissued copies</p>
+    {%endif%}
+
+    <h2>Issued Copies</h2>
+    {%if issuedCopies%}
+        {%for copy in issuedCopies%}
+            <a href="{%url 'memCopyView' copy.id%}">{{copy}}</a>
+        {%endfor%}
+    {%else%}
+        <p>No copies have been issued</p>
+    {%endif%}
+
+{%endblock%}
