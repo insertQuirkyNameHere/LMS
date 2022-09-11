@@ -1,0 +1,26 @@
+{%extends '../base.html'%}
+
+{%block title%}Pending Fines{%endblock%}
+
+
+{%block content%}
+    {%if pendingFines%}
+        <h2>Pending Fine Approvals</h2>
+        <table>
+            <tr>
+                <th>Copy</th>   
+                <th>Returned On</th>
+                <th>Due Date</th>
+            </tr>
+        {%for fine in pendingFines%}
+            <tr>
+                <td>{{fine.copy}}</td>
+                <td>{{fine.returnDate}}</td>
+                <td>{{fine.copy.returnDate}}</td>
+            </tr>
+        {%endfor%}
+    </table>
+    {%else%}
+        <p>There are no more late returns to be approved.</p>
+    {%endif%}
+{%endblock%}

@@ -1,0 +1,28 @@
+{%extends '../base.html'%}
+
+{%block title%}Borrow History{%endblock%}
+
+
+{%block content%}
+    {%if borrowList%}
+        <h2>Borrow History</h2>
+        <table>
+            <tr>
+                <th>Copy</th>   
+                <th>Borrower</th>
+                <th>Borrow Date</th>
+                <th>Returned Date</th>
+            </tr>
+        {%for borrow in borrowList%}
+            <tr>
+                <td>{{borrow.copy}}</td>
+                <td>{{borrow.borrower.name}}</td>
+                <td>{{borrow.borrowDate}}</td>
+                <td>{{borrow.returnDate}}</td>
+            </tr>
+        {%endfor%}
+    </table>
+    {%else%}
+        <p>No books have been returned yet</p>
+    {%endif%}
+{%endblock%}

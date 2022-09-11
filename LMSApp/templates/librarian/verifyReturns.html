@@ -1,0 +1,63 @@
+{%extends '../base.html'%}
+
+{%block title%}Verify Returns{%endblock%}
+
+
+{%block content%}
+
+    <h2>Verify Timely Returns</h2>
+    {%if pendingRequests%}
+        <table>
+            <tr>
+                <th>Copy</th>
+                <th>Member</th>
+                <th>Returned On</th>
+                <th>Action</th>
+            </tr>
+        {%for request in pendingRequests%}
+            <tr>
+                <td>{{request.copy}}</td>
+                <td>{{request.member.name}}</td>
+                <td>{{request.returnDate}}</td>
+                <td>
+                    <form method="post">
+                        {%csrf_token%}
+                        <button type="submit" name="approve" value="{{request.id}}">Approve</button>
+                        <button type="submit" name="reject" value="{{request.id}}">Reject</button>
+                    </form>
+                </td>
+            </tr>
+        {%endfor%}
+    </table>
+    {%else%}
+        <p>There are no pending timely return requests at this time</p>
+    {%endif%}
+
+    <h2>Verify Late Returns</h2>
+    {%if pendingFines%}
+        <table>
+            <tr>
+                <th>Copy</th>
+                <th>Member</th>
+                <th>Returned On</th>
+                <th>Action</th>
+            </tr>
+        {%for fine in pendingFines%}
+            <tr>
+                <td>{{fine.copy}}</td>
+                <td>{{fine.member.name}}</td>
+                <td>{{fine.returnDate}}</td>
+                <td>
+                    <form method="post" action="{% url 'verifyFines'%}">
+                        {%csrf_token%}
+                        <button type="submit" name="approve" value="{{fine.id}}">Approve</button>
+                        <button type="submit" name="reject" value="{{fine.id}}">Reject</button>
+                    </form>
+                </td>
+            </tr>
+        {%endfor%}
+    </table>
+    {%else%}
+        <p>There are no pending late return requests at this time</p>
+    {%endif%}
+{%endblock%}

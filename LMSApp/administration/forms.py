@@ -35,7 +35,7 @@ class EditCopiesForm(forms.Form):
     AllmemberObj = Member.objects.all()
     issuedToChoices = [(None, None)]
     for member in AllmemberObj:
-        issuedToChoices.append((member.name, member.name))
+        issuedToChoices.append((member.id, member.name))
     price = forms.DecimalField(widget=forms.NumberInput(attrs={'placeholder':'Copy Price', 'aria-label':'Copy Price'}))
     isIssued = forms.BooleanField(label='Copy Issued?', required=False)
     issuedDate = forms.DateField(widget=DateInput(attrs={'type':'date', 'disabled':'true'}), label='Issue Date', required=False)

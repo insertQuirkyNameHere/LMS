@@ -42,15 +42,21 @@ class BorrowHistory(models.Model):
     copy = models.ForeignKey(Copy, on_delete=models.SET('Deleted Copy'))
     borrower = models.ForeignKey(Member, on_delete=models.SET('Deleted User'))
     borrowDate = models.DateField()
-    dueDate = models.DateField()
+    returnDate = models.DateField()
 
-class Fines(models.Model):
-    borrowInstance = models.OneToOneField(BorrowHistory, on_delete=models.CASCADE)
-    amount = models.DecimalField(decimal_places=2, max_digits=6)
-
-class VerifyReturns:
+class VerifyReturns(models.Model):
     copy = models.ForeignKey(Copy, on_delete=models.SET('Deleted Copy'))
     member = models.ForeignKey(Member, on_delete=models.SET('Deleted User'))
+    returnDate = models.DateField()
+
+class FinesHistory(models.Model):
+    borrowInstance = models.OneToOneField(BorrowHistory, on_delete=models.CASCADE)
+    dueDate = models.DateField()
+    amount = models.DecimalField(decimal_places=2, max_digits=6)
+
+class PendingFines(models.Model):
+    member = models.ForeignKey(Member, on_delete=models.RESTRICT)
+    copy = models.ForeignKey(Copy, on_delete=models.CASCADE)
     returnDate = models.DateField()
 
 

@@ -6,12 +6,16 @@
     <h2>Return Book</h2>
     <ul>
         <li>Book: {{copy}}</li>
-        <li>Price: {{copy.price}}</li>
         <li>Issue Date: {{copy.issueDate}}</li>
         <li>Due Date: {{copy.returnDate}}</li>
     </ul>
 
-    <form action="post">
-        <button type="submit">Return</button>
-    </form>
+    {%if unconfirmedReturns%}
+        <p>You have already issued a return request for this book. Awaiting librarian approval</p>
+    {%else%}
+        <form  method="post">
+            {%csrf_token%}
+            <button type="submit">Return</button>
+        </form>
+    {%endif%}
 {%endblock%}

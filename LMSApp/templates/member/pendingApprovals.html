@@ -1,0 +1,24 @@
+{%extends '../base.html'%}
+
+{%block title%}Pending Returns{%endblock%}
+
+
+{%block content%}
+    {%if pendingRequests%}
+        <h2>Pending Return Approvals</h2>
+        <table>
+            <tr>
+                <th>Copy</th>   
+                <th>Returned On</th>
+            </tr>
+        {%for request in pendingRequests%}
+            <tr>
+                <td>{{request.copy}}</td>
+                <td>{{request.returnDate}}</td>
+            </tr>
+        {%endfor%}
+    </table>
+    {%else%}
+        <p>There are no more returns to be approved. If you still have issued books, maybe you need to pay a <a href="{%url 'memPendingFines'%}">fine</a>?</p>
+    {%endif%}
+{%endblock%}
