@@ -1,0 +1,31 @@
+{%extends '../base.html'%}
+
+{%block title%}Borrow History{%endblock%}
+
+{%block content%}
+
+    <h2>Fines History</h2>
+    {%if fineList%}
+        <table>
+            <tr>
+                <th>Book</th>
+                <th>Borrow Date</th>
+                <th>Returned Date</th>
+                <th>Due Date</th>
+                <th>Amount</th>
+            </tr>
+        {%for fine in fineList%}
+            <tr>
+                <td>{{fine.borrowInstance.copy.book.title}}</td>
+                <td>{{fine.borrowInstance.borrowDate}}</td>
+                <td>{{fine.borrowInstance.returnDate}}</td>
+                <td>{{fine.dueDate}}</td>
+                <td>{{fine.amount}}</td>
+            </tr>
+        {%endfor%}
+        </table>
+
+    {%else%}
+        <p>You have no Borrow History</p>
+    {%endif%}
+{%endblock%}

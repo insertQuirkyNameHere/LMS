@@ -10,4 +10,6 @@ urlpatterns=[
     path('returnBook/<int:id>/', ReturnCopy.as_view(), name='memReturnBook'),
     path('pendingApprovals/', PendingApprovals.as_view(), name='memPendingApprovals'),
     path('pendingFines/', PendingFinesView.as_view(), name='memPendingFines'),
+    path('borrowHistory/', ViewBorrowHistory.as_view(), name='memBorrowHistory'),
+    path('fineHistory/', ViewFinesHistory.as_view(), name='memFineHistory'),
 ]

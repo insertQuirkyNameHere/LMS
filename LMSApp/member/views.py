@@ -1,4 +1,5 @@
 import datetime as DT
+from distutils.log import Log
 from multiprocessing import context
 
 from django.urls import reverse
@@ -155,3 +156,32 @@ class PayFines(LoginRequiredMixin, View):
     def post(self, request):
         user = request.user
         member = Member.objects.get(userObj=user)
+
+class ViewBorrowHistory(LoginRequiredMixin, View):
+    def get(self, request):
+        user = request.user
+        member = Member.objects.get(userObj=user)
+        borrowList = BorrowHistory.objects.filter(borrower=member)
+
+        context = {}
+        context['borrowList'] = borrowList
+        return render(request, 'member/borrowHistory.html', context)
+
+class ViewFinesHistory(LoginRequiredMixin, View):
+    def get(self, request):
+        user = request.user
+        member = Member.objects.get(userObj=user)
+        borrowList = BorrowHistory.objects.filter(borrower=member)
+        fineList = []
+
+        for borrow in borrowList:
+            if FinesHistory.objects.filter(borrowInstance=borrow).exists():
+                fines = FinesHistory.objects.filter(borrowInstance=borrow)
+                for fine in fines:
+                    fineList.append(fine)
+
+        print(fineList, '\n')
+        context = {}
+        context['fineList'] = fineList
+
+        return render(request, 'member/fineHistory.html', context)
