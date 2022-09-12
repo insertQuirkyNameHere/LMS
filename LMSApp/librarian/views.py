@@ -103,7 +103,3 @@ class ViewFineHistory(View):
         context = {}
         context['fineList'] = fineList
         return render(request, 'librarian/fineHistory.html', context)
-
-
-
-        

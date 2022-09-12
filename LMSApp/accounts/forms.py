@@ -21,5 +21,3 @@ class ResetPasswordForm(Form):
     oldPassword = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Old Password', 'aria-label:': 'old password'}))
     newPassword = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'New Password', 'aria-label':'New Password'}))
     confirmPassword = forms.CharField(widget=forms.PasswordInput(attrs={'Placeholder': 'Confirm Password', 'aria-label':'Confirm password'}))
-    
-        

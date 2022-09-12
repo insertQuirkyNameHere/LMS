@@ -99,7 +99,3 @@ class UserScramble(View):
             return redirect(reverse('libDash'))
         elif request.user.is_member:
             return redirect(reverse('memberDash'))
-
-
-
-
