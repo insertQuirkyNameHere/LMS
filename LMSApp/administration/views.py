@@ -530,7 +530,7 @@ class EditCopy(View):
                         return redirect(reverse('viewCopy', args=[id]))
 
                     if issuedTo:
-                        copyToEdit.issuedTo = issuedTo
+                        copyToEdit.issuedTo = Member.objects.get(id=issuedTo)
                     else:
                         messages.error(request, 'Copy cannot be set to issued without specifying a borrower')
                         return redirect(reverse('viewCopy', args=[id]))

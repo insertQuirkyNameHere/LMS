@@ -4,7 +4,10 @@
 
 
 {%block content%}
-    <h2>Administrator Dashboard</h2>
+    <h2>Librarian Dashboard</h2>
     <a href="{% url 'bookManage'%}">Manage books</a>
     <a href="{% url 'adminMemberAccManage'%}">Account Management</a>
+    <a href="{% url 'verifyReturns'%}">Verify Returns</a>
+    <a href="{% url 'borrowHistory'%}">Borrow History</a>
+    <a href="{% url 'fineHistory'%}">Fine History</a>
 {%endblock%}

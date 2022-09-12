@@ -22,5 +22,4 @@ urlpatterns = [
     path('books/copy/add/<int:id>/ ', AddCopy.as_view(), name='addCopies'),
     path('books/copy/edit/<int:id>/ ', EditCopy.as_view(), name='editCopies'),
     path('books/copy/del/<int:id>/ ', DeleteCopy.as_view(), name='delCopies'),
-    
 ]

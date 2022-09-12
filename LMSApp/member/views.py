@@ -1,11 +1,12 @@
 import datetime as DT
+from distutils.log import Log
 from multiprocessing import context
 
 from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.views import View
 
-from models.models import Book, Copy, Member, VerifyReturns
+from models.models import *  
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -54,10 +55,6 @@ class CopyView(LoginRequiredMixin, View):
         context['copy'] = copy
         context['member'] = member
         numAlreadyIssued = Copy.objects.filter(issuedTo=member).count()
-        print('Copy:', copy)
-        print('Member:', member)
-        print('numIssued:', numAlreadyIssued, '\n')
-        pass
 
         if numAlreadyIssued >= 3:
             messages.error(request, 'You have already issued 3 books. Return them to issue this book')
@@ -89,13 +86,16 @@ class ReturnCopy(LoginRequiredMixin, View):
         user = request.user
         member = Member.objects.get(userObj=user)
         copy = Copy.objects.get(id=id)
-        
+        unconfirmedReturns = ''
+        if VerifyReturns.objects.filter(copy=copy).exists():
+            unconfirmedReturns = VerifyReturns.objects.get(copy=copy)
         if not copy.issuedTo == member:
             messages.error(request, 'Do not attempt to change the URL to manipulate Returns. Your activity will be reported to the librarian')
             return redirect(reverse('memberDash'))
 
         context={}
         context['copy'] = copy
+        context['unconfirmedReturns'] = unconfirmedReturns
         return render(request, 'member/returnBook.html', context)
 
     def post(self, request, id):
@@ -106,17 +106,82 @@ class ReturnCopy(LoginRequiredMixin, View):
         if not copy.issuedTo == member:
             messages.error(request, 'Do not attempt to change the URL to manipulate Returns. Your activity will be reported to the librarian')
             return redirect(reverse('memberDash'))
+        
+        if VerifyReturns.objects.filter(copy=copy).exists():
+            messages.warning(request, 'You have already issued a return request for this book. Awaiting librarian approval')
+            return redirect(reverse('memIssueList'))
 
-        newReturn = VerifyReturns.objects.create(copy=copy, returnDate=DT.date.today())
-        newReturn.save()
-        messages.info('Your return has been noted. Awaiting librarian approval')
+        if PendingFines.objects.filter(copy=copy).exists():
+            messages.warning(request, 'You have already issued a return request for this book. Awaiting librarian approval')
+            return redirect(reverse('memIssueList'))
+
+        if DT.date.today() <= copy.returnDate:
+            newReturn = VerifyReturns.objects.create(copy=copy, returnDate=DT.date.today(), member=member)
+            newReturn.save()
+            messages.info(request, 'Your return has been noted. Awaiting librarian approval')
+        else:
+            PendingFines.objects.create(copy=copy, returnDate=DT.date.today(), member=member).save()
+            messages.info(request, 'Your return was late. Awaiting librarian approval for fine receipt')
         return redirect(reverse('memberDash'))
 
-class PendingApprovals(LoginRequiredMixin, View):
+class PendingApprovals(View):
     def get(self, request):
         user = request.user
         member = Member.objects.get(userObj=user)
-        pendingApprovals = VerifyReturns.objects.filter(member=member)
+        pendingRequests = VerifyReturns.objects.filter(member=member)
         context = {}
-        context['pendingApprovals'] = pendingApprovals
-        return render(request, 'member/returnApprovals.html', context)
+        context['pendingRequests'] = pendingRequests
+
+        return render(request, 'member/pendingApprovals.html', context)
+
+class PendingFinesView(View):
+    def get(self, request):
+        user = request.user
+        member = Member.objects.get(userObj=user)
+        pendingFines = PendingFines.objects.filter(member=member)
+        context = {}
+        context['pendingFines'] = pendingFines
+
+        return render(request, 'member/pendingFines.html', context)
+
+class PayFines(LoginRequiredMixin, View):
+    def get(self, request):
+        user = request.user
+        member = Member.objects.get(userObj=user)
+        pendingFines = PendingFines.objects.filter(member=member)
+        context = {}
+        context['pendingFines'] = pendingFines
+        return render(request, 'member/payFines.html', context)
+
+    def post(self, request):
+        user = request.user
+        member = Member.objects.get(userObj=user)
+
+class ViewBorrowHistory(LoginRequiredMixin, View):
+    def get(self, request):
+        user = request.user
+        member = Member.objects.get(userObj=user)
+        borrowList = BorrowHistory.objects.filter(borrower=member)
+
+        context = {}
+        context['borrowList'] = borrowList
+        return render(request, 'member/borrowHistory.html', context)
+
+class ViewFinesHistory(LoginRequiredMixin, View):
+    def get(self, request):
+        user = request.user
+        member = Member.objects.get(userObj=user)
+        borrowList = BorrowHistory.objects.filter(borrower=member)
+        fineList = []
+
+        for borrow in borrowList:
+            if FinesHistory.objects.filter(borrowInstance=borrow).exists():
+                fines = FinesHistory.objects.filter(borrowInstance=borrow)
+                for fine in fines:
+                    fineList.append(fine)
+
+        print(fineList, '\n')
+        context = {}
+        context['fineList'] = fineList
+
+        return render(request, 'member/fineHistory.html', context)

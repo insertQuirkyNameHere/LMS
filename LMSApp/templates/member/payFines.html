@@ -1,0 +1,33 @@
+{%extends '../base.html'%}
+
+{%block title%}Pay Fine{%endblock%}
+
+
+{%block content%}
+    {%if pendingRequests%}
+        <h2>Pay fine</h2>
+        <table>
+            <tr>
+                <th>Copy</th>   
+                <th>Returned On</th>
+                <th>Action</th>
+            </tr>
+        {%for request in pendingRequests%}
+            <tr>
+                <td>{{request.copy}}</td>
+                <td>{{request.member.name}}</td>
+                <td>{{request.returnDate}}</td>
+                <td>
+                    <form method="post">
+                        {%csrf_token%}
+                        <button type="submit" name="approve" value="{{request.id}}">Approve</button>
+                        <button type="submit" name="reject" value="{{request.id}}">Reject</button>
+                    </form>
+                </td>
+            </tr>
+        {%endfor%}
+    </table>
+    {%else%}
+        <p>There are no pending request approvals at this time</p>
+    {%endif%}
+{%endblock%}

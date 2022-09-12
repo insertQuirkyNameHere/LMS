@@ -24,6 +24,13 @@
     const issueDateEle = document.querySelector('#id_issuedDate');
     const returnDateEle = document.querySelector('#id_returnDate');
     const issuedToEle = document.querySelector('#id_issuedTo');
+
+    if (checkEle.checked){
+            issueDateEle.removeAttribute('disabled');
+            returnDateEle.removeAttribute('disabled');
+            issuedToEle.removeAttribute('disabled');
+    }
+    
     checkEle.addEventListener('click', function(){
         if (checkEle.checked){
             issueDateEle.removeAttribute('disabled');

@@ -8,7 +8,7 @@
         {%for copy in copyList%}
             <div>
                 <a href="{%url 'memCopyView' copy.id%}">{{copy}}</a>
-                <a href="">{{return}}</a>
+                <a href="{%url 'memReturnBook' copy.id%}">Return</a>
             </div>
         {%endfor%}
     {%else%}
